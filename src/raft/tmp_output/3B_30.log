@@ -1,0 +1,801 @@
+Test (3B): basic agreement ...
+1 become leader in term 1
+1 leader receive cmd 1
+leader 1 commit_index update to 1
+follower 2 commit_index update to 1
+follower 0 commit_index update to 1
+1 leader receive cmd 2
+leader 1 commit_index update to 2
+follower 2 commit_index update to 2
+follower 0 commit_index update to 2
+1 leader receive cmd 3
+leader 1 commit_index update to 3
+follower 2 commit_index update to 3
+follower 0 commit_index update to 3
+  ... Passed --   0.7  3   16    4680    3
+Test (3B): RPC byte count ...
+0 become leader in term 1
+0 leader receive cmd 1
+leader 0 commit_index update to 1
+follower 2 commit_index update to 1
+follower 1 commit_index update to 1
+0 leader receive cmd 2
+leader 0 commit_index update to 2
+follower 2 commit_index update to 2
+follower 1 commit_index update to 2
+0 leader receive cmd 3
+leader 0 commit_index update to 3
+follower 1 commit_index update to 3
+follower 2 commit_index update to 3
+0 leader receive cmd 4
+leader 0 commit_index update to 4
+follower 2 commit_index update to 4
+follower 1 commit_index update to 4
+0 leader receive cmd 5
+leader 0 commit_index update to 5
+follower 2 commit_index update to 5
+follower 1 commit_index update to 5
+0 leader receive cmd 6
+leader 0 commit_index update to 6
+follower 2 commit_index update to 6
+follower 1 commit_index update to 6
+0 leader receive cmd 7
+leader 0 commit_index update to 7
+follower 2 commit_index update to 7
+follower 1 commit_index update to 7
+0 leader receive cmd 8
+leader 0 commit_index update to 8
+follower 1 commit_index update to 8
+follower 2 commit_index update to 8
+0 leader receive cmd 9
+leader 0 commit_index update to 9
+follower 2 commit_index update to 9
+follower 1 commit_index update to 9
+0 leader receive cmd 10
+leader 0 commit_index update to 10
+follower 2 commit_index update to 10
+follower 1 commit_index update to 10
+0 leader receive cmd 11
+leader 0 commit_index update to 11
+follower 2 commit_index update to 11
+follower 1 commit_index update to 11
+  ... Passed --   1.5  3   48  114676   11
+Test (3B): test progressive failure of followers ...
+0 become leader in term 1
+0 leader receive cmd 1
+leader 0 commit_index update to 1
+follower 2 commit_index update to 1
+follower 1 commit_index update to 1
+0 leader receive cmd 2
+leader 0 commit_index update to 2
+follower 2 commit_index update to 2
+0 leader receive cmd 3
+leader 0 commit_index update to 3
+follower 2 commit_index update to 3
+0 leader receive cmd 4
+  ... Passed --   4.6  3  188   45271    3
+Test (3B): test failure of leaders ...
+0 become leader in term 1
+0 leader receive cmd 1
+leader 0 commit_index update to 1
+follower 2 commit_index update to 1
+follower 1 commit_index update to 1
+1 become leader in term 2
+1 leader receive cmd 2
+leader 1 commit_index update to 2
+follower 2 commit_index update to 2
+1 leader receive cmd 3
+leader 1 commit_index update to 3
+follower 2 commit_index update to 3
+0 leader receive cmd 2
+1 leader receive cmd 4
+  ... Passed --   5.2  3  350   81345    3
+Test (3B): agreement after follower reconnects ...
+2 become leader in term 1
+2 leader receive cmd 1
+leader 2 commit_index update to 1
+follower 0 commit_index update to 1
+follower 1 commit_index update to 1
+2 leader receive cmd 2
+leader 2 commit_index update to 2
+follower 1 commit_index update to 2
+2 leader receive cmd 3
+leader 2 commit_index update to 3
+follower 1 commit_index update to 3
+2 leader receive cmd 4
+leader 2 commit_index update to 4
+follower 1 commit_index update to 4
+2 leader receive cmd 5
+leader 2 commit_index update to 5
+follower 1 commit_index update to 5
+2 leader receive cmd 6
+2 become leader in term 4
+2 become leader in term 6
+1 become leader in term 7
+follower 0 commit_index update to 5
+1 leader receive cmd 7
+leader 1 commit_index update to 7
+follower 0 commit_index update to 7
+follower 2 commit_index update to 7
+1 leader receive cmd 8
+leader 1 commit_index update to 8
+follower 0 commit_index update to 8
+follower 2 commit_index update to 8
+  ... Passed --   5.5  3  178   50416    8
+Test (3B): no agreement if too many followers disconnect ...
+0 become leader in term 1
+0 leader receive cmd 1
+leader 0 commit_index update to 1
+follower 4 commit_index update to 1
+follower 1 commit_index update to 1
+follower 2 commit_index update to 1
+follower 3 commit_index update to 1
+0 leader receive cmd 2
+2 become leader in term 4
+2 leader receive cmd 2
+2 leader receive cmd 3
+leader 2 commit_index update to 2
+follower 4 commit_index update to 2
+follower 1 commit_index update to 2
+follower 3 commit_index update to 2
+follower 0 commit_index update to 2
+leader 2 commit_index update to 3
+follower 4 commit_index update to 3
+follower 0 commit_index update to 3
+follower 3 commit_index update to 3
+follower 1 commit_index update to 3
+  ... Passed --   3.6  5  296   73851    3
+Test (3B): concurrent Start()s ...
+2 become leader in term 1
+2 leader receive cmd 1
+2 leader receive cmd 2
+2 leader receive cmd 3
+2 leader receive cmd 4
+2 leader receive cmd 5
+2 leader receive cmd 6
+leader 2 commit_index update to 1
+follower 1 commit_index update to 1
+follower 0 commit_index update to 1
+leader 2 commit_index update to 2
+follower 1 commit_index update to 2
+follower 0 commit_index update to 2
+leader 2 commit_index update to 3
+follower 1 commit_index update to 3
+follower 0 commit_index update to 3
+leader 2 commit_index update to 4
+follower 1 commit_index update to 4
+follower 0 commit_index update to 4
+leader 2 commit_index update to 5
+follower 1 commit_index update to 5
+follower 0 commit_index update to 5
+leader 2 commit_index update to 6
+follower 1 commit_index update to 6
+follower 0 commit_index update to 6
+  ... Passed --   0.8  3   22    6544    6
+Test (3B): rejoin of partitioned leader ...
+2 become leader in term 1
+2 leader receive cmd 1
+leader 2 commit_index update to 1
+follower 1 commit_index update to 1
+follower 0 commit_index update to 1
+2 leader receive cmd 2
+2 leader receive cmd 3
+2 leader receive cmd 4
+0 become leader in term 2
+0 leader receive cmd 2
+leader 0 commit_index update to 2
+follower 1 commit_index update to 2
+2 leader receive cmd 5
+1 become leader in term 4
+follower 2 commit_index update to 2
+1 leader receive cmd 3
+leader 1 commit_index update to 3
+follower 2 commit_index update to 3
+1 leader receive cmd 4
+1 become leader in term 6
+2 become leader in term 7
+1 become leader in term 8
+2 become leader in term 10
+1 become leader in term 11
+1 leader receive cmd 5
+2 become leader in term 13
+1 become leader in term 14
+2 become leader in term 15
+1 become leader in term 16
+2 become leader in term 18
+1 become leader in term 19
+1 leader receive cmd 6
+2 become leader in term 21
+1 become leader in term 22
+2 become leader in term 24
+1 become leader in term 25
+1 leader receive cmd 7
+1 become leader in term 27
+2 become leader in term 28
+1 become leader in term 29
+2 become leader in term 30
+1 become leader in term 31
+1 leader receive cmd 8
+2 become leader in term 32
+1 become leader in term 33
+2 become leader in term 35
+1 become leader in term 36
+2 become leader in term 37
+--- FAIL: TestRejoin3B (14.19s)
+    config.go:605: one(105) failed to reach agreement
+Test (3B): leader backs up quickly over incorrect follower logs ...
+1 become leader in term 1
+1 leader receive cmd 1
+leader 1 commit_index update to 1
+follower 4 commit_index update to 1
+follower 0 commit_index update to 1
+follower 2 commit_index update to 1
+follower 3 commit_index update to 1
+1 leader receive cmd 2
+1 leader receive cmd 3
+1 leader receive cmd 4
+1 leader receive cmd 5
+1 leader receive cmd 6
+1 leader receive cmd 7
+1 leader receive cmd 8
+1 leader receive cmd 9
+1 leader receive cmd 10
+1 leader receive cmd 11
+1 leader receive cmd 12
+1 leader receive cmd 13
+1 leader receive cmd 14
+1 leader receive cmd 15
+1 leader receive cmd 16
+1 leader receive cmd 17
+1 leader receive cmd 18
+1 leader receive cmd 19
+1 leader receive cmd 20
+1 leader receive cmd 21
+1 leader receive cmd 22
+1 leader receive cmd 23
+1 leader receive cmd 24
+1 leader receive cmd 25
+1 leader receive cmd 26
+1 leader receive cmd 27
+1 leader receive cmd 28
+1 leader receive cmd 29
+1 leader receive cmd 30
+1 leader receive cmd 31
+1 leader receive cmd 32
+1 leader receive cmd 33
+1 leader receive cmd 34
+1 leader receive cmd 35
+1 leader receive cmd 36
+1 leader receive cmd 37
+1 leader receive cmd 38
+1 leader receive cmd 39
+1 leader receive cmd 40
+1 leader receive cmd 41
+1 leader receive cmd 42
+1 leader receive cmd 43
+1 leader receive cmd 44
+1 leader receive cmd 45
+1 leader receive cmd 46
+1 leader receive cmd 47
+1 leader receive cmd 48
+1 leader receive cmd 49
+1 leader receive cmd 50
+1 leader receive cmd 51
+0 become leader in term 3
+0 leader receive cmd 2
+leader 0 commit_index update to 2
+follower 4 commit_index update to 2
+follower 3 commit_index update to 2
+0 leader receive cmd 3
+leader 0 commit_index update to 3
+follower 4 commit_index update to 3
+follower 3 commit_index update to 3
+0 leader receive cmd 4
+leader 0 commit_index update to 4
+follower 4 commit_index update to 4
+follower 3 commit_index update to 4
+0 leader receive cmd 5
+leader 0 commit_index update to 5
+follower 4 commit_index update to 5
+follower 3 commit_index update to 5
+0 leader receive cmd 6
+leader 0 commit_index update to 6
+follower 3 commit_index update to 6
+follower 4 commit_index update to 6
+0 leader receive cmd 7
+leader 0 commit_index update to 7
+follower 4 commit_index update to 7
+follower 3 commit_index update to 7
+0 leader receive cmd 8
+leader 0 commit_index update to 8
+follower 4 commit_index update to 8
+follower 3 commit_index update to 8
+0 leader receive cmd 9
+leader 0 commit_index update to 9
+follower 4 commit_index update to 9
+follower 3 commit_index update to 9
+0 leader receive cmd 10
+leader 0 commit_index update to 10
+follower 4 commit_index update to 10
+follower 3 commit_index update to 10
+0 leader receive cmd 11
+leader 0 commit_index update to 11
+follower 4 commit_index update to 11
+follower 3 commit_index update to 11
+0 leader receive cmd 12
+leader 0 commit_index update to 12
+follower 4 commit_index update to 12
+follower 3 commit_index update to 12
+0 leader receive cmd 13
+leader 0 commit_index update to 13
+follower 4 commit_index update to 13
+follower 3 commit_index update to 13
+0 leader receive cmd 14
+leader 0 commit_index update to 14
+follower 4 commit_index update to 14
+follower 3 commit_index update to 14
+0 leader receive cmd 15
+leader 0 commit_index update to 15
+follower 4 commit_index update to 15
+follower 3 commit_index update to 15
+0 leader receive cmd 16
+leader 0 commit_index update to 16
+follower 4 commit_index update to 16
+follower 3 commit_index update to 16
+0 leader receive cmd 17
+leader 0 commit_index update to 17
+follower 4 commit_index update to 17
+follower 3 commit_index update to 17
+0 leader receive cmd 18
+leader 0 commit_index update to 18
+follower 4 commit_index update to 18
+follower 3 commit_index update to 18
+0 leader receive cmd 19
+leader 0 commit_index update to 19
+follower 4 commit_index update to 19
+follower 3 commit_index update to 19
+0 leader receive cmd 20
+leader 0 commit_index update to 20
+follower 4 commit_index update to 20
+follower 3 commit_index update to 20
+0 leader receive cmd 21
+leader 0 commit_index update to 21
+follower 4 commit_index update to 21
+follower 3 commit_index update to 21
+0 leader receive cmd 22
+leader 0 commit_index update to 22
+follower 4 commit_index update to 22
+follower 3 commit_index update to 22
+0 leader receive cmd 23
+leader 0 commit_index update to 23
+follower 4 commit_index update to 23
+follower 3 commit_index update to 23
+0 leader receive cmd 24
+leader 0 commit_index update to 24
+follower 4 commit_index update to 24
+follower 3 commit_index update to 24
+0 leader receive cmd 25
+leader 0 commit_index update to 25
+follower 4 commit_index update to 25
+follower 3 commit_index update to 25
+0 leader receive cmd 26
+leader 0 commit_index update to 26
+follower 4 commit_index update to 26
+follower 3 commit_index update to 26
+0 leader receive cmd 27
+leader 0 commit_index update to 27
+follower 4 commit_index update to 27
+follower 3 commit_index update to 27
+0 leader receive cmd 28
+leader 0 commit_index update to 28
+follower 4 commit_index update to 28
+follower 3 commit_index update to 28
+0 leader receive cmd 29
+leader 0 commit_index update to 29
+follower 4 commit_index update to 29
+follower 3 commit_index update to 29
+0 leader receive cmd 30
+leader 0 commit_index update to 30
+follower 4 commit_index update to 30
+follower 3 commit_index update to 30
+0 leader receive cmd 31
+leader 0 commit_index update to 31
+follower 4 commit_index update to 31
+follower 3 commit_index update to 31
+0 leader receive cmd 32
+leader 0 commit_index update to 32
+follower 4 commit_index update to 32
+follower 3 commit_index update to 32
+0 leader receive cmd 33
+leader 0 commit_index update to 33
+follower 4 commit_index update to 33
+follower 3 commit_index update to 33
+0 leader receive cmd 34
+leader 0 commit_index update to 34
+follower 4 commit_index update to 34
+follower 3 commit_index update to 34
+0 leader receive cmd 35
+leader 0 commit_index update to 35
+follower 4 commit_index update to 35
+follower 3 commit_index update to 35
+0 leader receive cmd 36
+leader 0 commit_index update to 36
+follower 4 commit_index update to 36
+follower 3 commit_index update to 36
+0 leader receive cmd 37
+leader 0 commit_index update to 37
+follower 4 commit_index update to 37
+follower 3 commit_index update to 37
+0 leader receive cmd 38
+leader 0 commit_index update to 38
+follower 3 commit_index update to 38
+follower 4 commit_index update to 38
+0 leader receive cmd 39
+leader 0 commit_index update to 39
+follower 4 commit_index update to 39
+follower 3 commit_index update to 39
+0 leader receive cmd 40
+leader 0 commit_index update to 40
+follower 4 commit_index update to 40
+follower 3 commit_index update to 40
+0 leader receive cmd 41
+leader 0 commit_index update to 41
+follower 4 commit_index update to 41
+follower 3 commit_index update to 41
+0 leader receive cmd 42
+leader 0 commit_index update to 42
+follower 4 commit_index update to 42
+follower 3 commit_index update to 42
+0 leader receive cmd 43
+leader 0 commit_index update to 43
+follower 4 commit_index update to 43
+follower 3 commit_index update to 43
+0 leader receive cmd 44
+leader 0 commit_index update to 44
+follower 4 commit_index update to 44
+follower 3 commit_index update to 44
+0 leader receive cmd 45
+leader 0 commit_index update to 45
+follower 4 commit_index update to 45
+follower 3 commit_index update to 45
+0 leader receive cmd 46
+leader 0 commit_index update to 46
+follower 4 commit_index update to 46
+follower 3 commit_index update to 46
+0 leader receive cmd 47
+leader 0 commit_index update to 47
+follower 4 commit_index update to 47
+follower 3 commit_index update to 47
+0 leader receive cmd 48
+leader 0 commit_index update to 48
+follower 4 commit_index update to 48
+follower 3 commit_index update to 48
+0 leader receive cmd 49
+leader 0 commit_index update to 49
+follower 4 commit_index update to 49
+follower 3 commit_index update to 49
+0 leader receive cmd 50
+leader 0 commit_index update to 50
+follower 4 commit_index update to 50
+follower 3 commit_index update to 50
+0 leader receive cmd 51
+leader 0 commit_index update to 51
+follower 4 commit_index update to 51
+follower 3 commit_index update to 51
+0 leader receive cmd 52
+0 leader receive cmd 53
+0 leader receive cmd 54
+0 leader receive cmd 55
+0 leader receive cmd 56
+0 leader receive cmd 57
+0 leader receive cmd 58
+0 leader receive cmd 59
+0 leader receive cmd 60
+0 leader receive cmd 61
+0 leader receive cmd 62
+0 leader receive cmd 63
+0 leader receive cmd 64
+0 leader receive cmd 65
+0 leader receive cmd 66
+0 leader receive cmd 67
+0 leader receive cmd 68
+0 leader receive cmd 69
+0 leader receive cmd 70
+0 leader receive cmd 71
+0 leader receive cmd 72
+0 leader receive cmd 73
+0 leader receive cmd 74
+0 leader receive cmd 75
+0 leader receive cmd 76
+0 leader receive cmd 77
+0 leader receive cmd 78
+0 leader receive cmd 79
+0 leader receive cmd 80
+0 leader receive cmd 81
+0 leader receive cmd 82
+0 leader receive cmd 83
+0 leader receive cmd 84
+0 leader receive cmd 85
+0 leader receive cmd 86
+0 leader receive cmd 87
+0 leader receive cmd 88
+0 leader receive cmd 89
+0 leader receive cmd 90
+0 leader receive cmd 91
+0 leader receive cmd 92
+0 leader receive cmd 93
+0 leader receive cmd 94
+0 leader receive cmd 95
+0 leader receive cmd 96
+0 leader receive cmd 97
+0 leader receive cmd 98
+0 leader receive cmd 99
+0 leader receive cmd 100
+0 leader receive cmd 101
+1 leader receive cmd 52
+3 become leader in term 13
+follower 1 commit_index update to 51
+follower 2 commit_index update to 51
+3 leader receive cmd 52
+leader 3 commit_index update to 52
+follower 1 commit_index update to 52
+follower 2 commit_index update to 52
+3 leader receive cmd 53
+leader 3 commit_index update to 53
+follower 2 commit_index update to 53
+follower 1 commit_index update to 53
+3 leader receive cmd 54
+leader 3 commit_index update to 54
+follower 1 commit_index update to 54
+follower 2 commit_index update to 54
+3 leader receive cmd 55
+leader 3 commit_index update to 55
+follower 1 commit_index update to 55
+follower 2 commit_index update to 55
+3 leader receive cmd 56
+leader 3 commit_index update to 56
+follower 1 commit_index update to 56
+follower 2 commit_index update to 56
+3 leader receive cmd 57
+leader 3 commit_index update to 57
+follower 2 commit_index update to 57
+follower 1 commit_index update to 57
+3 leader receive cmd 58
+leader 3 commit_index update to 58
+follower 1 commit_index update to 58
+follower 2 commit_index update to 58
+3 leader receive cmd 59
+leader 3 commit_index update to 59
+follower 1 commit_index update to 59
+follower 2 commit_index update to 59
+3 leader receive cmd 60
+leader 3 commit_index update to 60
+follower 1 commit_index update to 60
+follower 2 commit_index update to 60
+3 leader receive cmd 61
+leader 3 commit_index update to 61
+follower 1 commit_index update to 61
+follower 2 commit_index update to 61
+3 leader receive cmd 62
+leader 3 commit_index update to 62
+follower 1 commit_index update to 62
+follower 2 commit_index update to 62
+3 leader receive cmd 63
+leader 3 commit_index update to 63
+follower 1 commit_index update to 63
+follower 2 commit_index update to 63
+3 leader receive cmd 64
+leader 3 commit_index update to 64
+follower 2 commit_index update to 64
+follower 1 commit_index update to 64
+3 leader receive cmd 65
+leader 3 commit_index update to 65
+follower 1 commit_index update to 65
+follower 2 commit_index update to 65
+3 leader receive cmd 66
+leader 3 commit_index update to 66
+follower 2 commit_index update to 66
+follower 1 commit_index update to 66
+3 leader receive cmd 67
+leader 3 commit_index update to 67
+follower 1 commit_index update to 67
+follower 2 commit_index update to 67
+3 leader receive cmd 68
+leader 3 commit_index update to 68
+follower 1 commit_index update to 68
+follower 2 commit_index update to 68
+3 leader receive cmd 69
+leader 3 commit_index update to 69
+follower 1 commit_index update to 69
+follower 2 commit_index update to 69
+3 leader receive cmd 70
+leader 3 commit_index update to 70
+follower 2 commit_index update to 70
+follower 1 commit_index update to 70
+3 leader receive cmd 71
+leader 3 commit_index update to 71
+follower 2 commit_index update to 71
+follower 1 commit_index update to 71
+3 leader receive cmd 72
+leader 3 commit_index update to 72
+follower 1 commit_index update to 72
+follower 2 commit_index update to 72
+3 leader receive cmd 73
+leader 3 commit_index update to 73
+follower 1 commit_index update to 73
+follower 2 commit_index update to 73
+3 leader receive cmd 74
+leader 3 commit_index update to 74
+follower 1 commit_index update to 74
+follower 2 commit_index update to 74
+3 leader receive cmd 75
+leader 3 commit_index update to 75
+follower 2 commit_index update to 75
+follower 1 commit_index update to 75
+3 leader receive cmd 76
+leader 3 commit_index update to 76
+follower 2 commit_index update to 76
+follower 1 commit_index update to 76
+3 leader receive cmd 77
+leader 3 commit_index update to 77
+follower 1 commit_index update to 77
+follower 2 commit_index update to 77
+3 leader receive cmd 78
+leader 3 commit_index update to 78
+follower 2 commit_index update to 78
+follower 1 commit_index update to 78
+3 leader receive cmd 79
+leader 3 commit_index update to 79
+follower 1 commit_index update to 79
+follower 2 commit_index update to 79
+3 leader receive cmd 80
+leader 3 commit_index update to 80
+follower 2 commit_index update to 80
+follower 1 commit_index update to 80
+3 leader receive cmd 81
+leader 3 commit_index update to 81
+follower 2 commit_index update to 81
+follower 1 commit_index update to 81
+3 leader receive cmd 82
+leader 3 commit_index update to 82
+follower 1 commit_index update to 82
+follower 2 commit_index update to 82
+3 leader receive cmd 83
+leader 3 commit_index update to 83
+follower 2 commit_index update to 83
+follower 1 commit_index update to 83
+3 leader receive cmd 84
+leader 3 commit_index update to 84
+follower 2 commit_index update to 84
+follower 1 commit_index update to 84
+3 leader receive cmd 85
+leader 3 commit_index update to 85
+follower 2 commit_index update to 85
+follower 1 commit_index update to 85
+3 leader receive cmd 86
+leader 3 commit_index update to 86
+follower 1 commit_index update to 86
+follower 2 commit_index update to 86
+3 leader receive cmd 87
+leader 3 commit_index update to 87
+follower 1 commit_index update to 87
+follower 2 commit_index update to 87
+3 leader receive cmd 88
+leader 3 commit_index update to 88
+follower 2 commit_index update to 88
+follower 1 commit_index update to 88
+3 leader receive cmd 89
+leader 3 commit_index update to 89
+follower 1 commit_index update to 89
+follower 2 commit_index update to 89
+3 leader receive cmd 90
+leader 3 commit_index update to 90
+follower 1 commit_index update to 90
+follower 2 commit_index update to 90
+3 leader receive cmd 91
+leader 3 commit_index update to 91
+follower 2 commit_index update to 91
+follower 1 commit_index update to 91
+3 leader receive cmd 92
+leader 3 commit_index update to 92
+follower 2 commit_index update to 92
+follower 1 commit_index update to 92
+3 leader receive cmd 93
+leader 3 commit_index update to 93
+follower 2 commit_index update to 93
+follower 1 commit_index update to 93
+3 leader receive cmd 94
+leader 3 commit_index update to 94
+follower 1 commit_index update to 94
+follower 2 commit_index update to 94
+3 leader receive cmd 95
+leader 3 commit_index update to 95
+follower 1 commit_index update to 95
+follower 2 commit_index update to 95
+3 leader receive cmd 96
+leader 3 commit_index update to 96
+follower 1 commit_index update to 96
+follower 2 commit_index update to 96
+3 leader receive cmd 97
+leader 3 commit_index update to 97
+follower 1 commit_index update to 97
+follower 2 commit_index update to 97
+3 leader receive cmd 98
+leader 3 commit_index update to 98
+follower 1 commit_index update to 98
+follower 2 commit_index update to 98
+3 leader receive cmd 99
+leader 3 commit_index update to 99
+follower 2 commit_index update to 99
+follower 1 commit_index update to 99
+3 leader receive cmd 100
+leader 3 commit_index update to 100
+follower 1 commit_index update to 100
+follower 2 commit_index update to 100
+3 leader receive cmd 101
+leader 3 commit_index update to 101
+follower 2 commit_index update to 101
+follower 1 commit_index update to 101
+3 leader receive cmd 102
+follower 4 commit_index update to 101
+follower 0 commit_index update to 101
+leader 3 commit_index update to 102
+follower 4 commit_index update to 102
+follower 0 commit_index update to 102
+follower 2 commit_index update to 102
+follower 1 commit_index update to 102
+  ... Passed --  15.4  5 2290 2386510  102
+Test (3B): RPC counts aren't too high ...
+2 become leader in term 1
+2 leader receive cmd 1
+2 leader receive cmd 2
+2 leader receive cmd 3
+2 leader receive cmd 4
+2 leader receive cmd 5
+2 leader receive cmd 6
+2 leader receive cmd 7
+2 leader receive cmd 8
+2 leader receive cmd 9
+2 leader receive cmd 10
+2 leader receive cmd 11
+2 leader receive cmd 12
+leader 2 commit_index update to 1
+follower 1 commit_index update to 1
+follower 0 commit_index update to 1
+leader 2 commit_index update to 2
+follower 1 commit_index update to 2
+follower 0 commit_index update to 2
+leader 2 commit_index update to 3
+follower 1 commit_index update to 3
+follower 0 commit_index update to 3
+leader 2 commit_index update to 4
+follower 1 commit_index update to 4
+follower 0 commit_index update to 4
+leader 2 commit_index update to 5
+follower 1 commit_index update to 5
+follower 0 commit_index update to 5
+leader 2 commit_index update to 6
+follower 1 commit_index update to 6
+follower 0 commit_index update to 6
+leader 2 commit_index update to 7
+follower 0 commit_index update to 7
+follower 1 commit_index update to 7
+leader 2 commit_index update to 8
+follower 1 commit_index update to 8
+follower 0 commit_index update to 8
+leader 2 commit_index update to 9
+follower 1 commit_index update to 9
+follower 0 commit_index update to 9
+leader 2 commit_index update to 10
+follower 1 commit_index update to 10
+follower 0 commit_index update to 10
+leader 2 commit_index update to 11
+follower 1 commit_index update to 11
+follower 0 commit_index update to 11
+leader 2 commit_index update to 12
+follower 1 commit_index update to 12
+follower 0 commit_index update to 12
+  ... Passed --   2.6  3   94   28404   12
+FAIL
+exit status 1
+FAIL	6.5840/raft	54.494s
