@@ -367,7 +367,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.commit_index = new_commit_index
 			//应用于状态机
 			rf.applyCV.Signal()
-			fmt.Printf("follower %d commit_index update to %d\n", rf.me, rf.commit_index)
+			//fmt.Printf("follower %d commit_index update to %d\n", rf.me, rf.commit_index)
 		}
 	}
 	rf.receive_heartbeat = true
@@ -460,7 +460,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		rf.mu.Unlock()
 		return index, term, isLeader
 	}
-	fmt.Printf("%d leader receive cmd %d\n", rf.me, index)
+	//fmt.Printf("%d leader receive cmd %d\n", rf.me, index)
 
 	log_entry := LogEntry{
 		Index: index,
@@ -526,7 +526,7 @@ func (rf *Raft) heartbeat_sender() {
 			if cnt_for_next_idx > len(rf.peers)/2 {
 				rf.commit_index++ //无论何时更新commit index都要通知applyCV！
 				rf.applyCV.Signal()
-				fmt.Printf("leader %d commit_index update to %d\n", rf.me, rf.commit_index)
+				//fmt.Printf("leader %d commit_index update to %d\n", rf.me, rf.commit_index)
 			}
 		}
 
@@ -658,7 +658,7 @@ func (rf *Raft) start_election() {
 				rf.votes++
 				if rf.votes > len(rf.peers)/2 {
 					//当选成功
-					fmt.Printf("%d become leader in term %d\n", rf.me, rf.current_term)
+					//fmt.Printf("%d become leader in term %d\n", rf.me, rf.current_term)
 					rf.identity = Enum_Leader
 					go rf.heartbeat_sender() //内部Unlock
 				} else {

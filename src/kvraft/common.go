@@ -4,6 +4,7 @@ const (
 	OK             = "OK"
 	ErrNoKey       = "ErrNoKey"
 	ErrWrongLeader = "ErrWrongLeader"
+	ErrTimeout     = "ErrTimeout"
 )
 
 type Err string
@@ -15,6 +16,9 @@ type PutAppendArgs struct {
 	// You'll have to add definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	Op       string // "Put" or "Append"
+	SeqId    int    // Sequence ID to detect duplicate requests
+	ClientId int64  // Client ID to track requests
 }
 
 type PutAppendReply struct {
@@ -22,7 +26,9 @@ type PutAppendReply struct {
 }
 
 type GetArgs struct {
-	Key string
+	Key      string
+	SeqId    int
+	ClientId int64 // Client ID to track requests
 	// You'll have to add definitions here.
 }
 
