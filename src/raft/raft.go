@@ -773,7 +773,7 @@ func (rf *Raft) heartbeat_sender() {
 				}
 			}(idx)
 		}
-		rf.setHeartBeatTimer(30)
+		rf.setHeartBeatTimer(10)
 		<-rf.heartbeatTimer.C
 		rf.mu.Lock()
 	}
