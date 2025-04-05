@@ -1,12 +1,14 @@
 package kvraft
 
 import (
-	"6.5840/labrpc"
+	"crypto/rand"
+	"fmt"
+	"math/big"
 	"sync"
 	"time"
+
+	"6.5840/labrpc"
 )
-import "crypto/rand"
-import "math/big"
 
 type Clerk struct {
 	servers []*labrpc.ClientEnd
@@ -46,6 +48,8 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 
 func (ck *Clerk) sendRequest(op string, key string, value string) string {
 	ck.mu.Lock()
+	defer fmt.Printf("clientid:%d seqid %d finish\n", ck.clientId, ck.seqId)
+	defer ck.mu.Unlock()
 	// 生成固定seqId
 	//seq := ck.GetSeq()
 
@@ -53,7 +57,6 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 	ck.seqId++
 
 	clientId := ck.clientId
-	ck.mu.Unlock()
 
 	for {
 		// 尝试当前认为的Leader
@@ -63,6 +66,7 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 		//fmt.Printf("Client [%d] trying leader %d, op=%s key=%s", ck.clientId, leaderId, op, key)
 
 		if op == "Get" {
+			fmt.Printf("clientid:%d seqid: %d, targetKvid: %d, op: Get\n", clientId, seq, ck.leaderId)
 			args := GetArgs{Key: key, ClientId: clientId, SeqId: seq}
 			ok = ck.servers[ck.leaderId].Call("KVServer.Get", &args, &reply)
 		} else {
@@ -73,6 +77,7 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 				ClientId: clientId,
 				SeqId:    seq,
 			}
+			fmt.Printf("clientid:%d seqid: %d, targetKvid: %d, op: PutAppend\n", clientId, seq, ck.leaderId)
 			var putReply PutAppendReply
 			ok = ck.servers[ck.leaderId].Call("KVServer.PutAppend", &args, &putReply)
 			reply.Err = putReply.Err
@@ -81,8 +86,6 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 		if ok {
 			switch reply.Err {
 			case OK:
-				ck.mu.Lock()
-				ck.mu.Unlock()
 				if op == "Get" {
 					return reply.Value
 				}
@@ -98,7 +101,7 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 		ck.leaderId = (ck.leaderId + 1) % len(ck.servers)
 		//fmt.Printf(" - failed, trying next server %d\n", leaderId)
 
-		time_sleep_millsecond(10) // 等待10ms再尝试下一个节点
+		time_sleep_millsecond(5) // 等待10ms再尝试下一个节点
 	}
 }
 

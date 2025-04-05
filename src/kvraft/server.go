@@ -1,13 +1,15 @@
 package kvraft
 
 import (
-	"6.5840/labgob"
-	"6.5840/labrpc"
-	"6.5840/raft"
+	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"6.5840/labgob"
+	"6.5840/labrpc"
+	"6.5840/raft"
 )
 
 const Debug = false
@@ -111,13 +113,22 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 // 超时机制：防止因网络分区等原因导致永久阻塞。
 func (kv *KVServer) HandleOp(op Op) OpResult {
 	kv.mu.Lock()
-
+	// if kv.killed() {
+	// 	return OpResult{ErrWrongLeader, ""}
+	// }
 	// Check for duplicate request
 	if seq, ok := kv.lastSeq[op.ClientId]; ok && seq >= op.SeqId {
 		// This is a duplicate request, return cached result
+		fmt.Printf("kvid: %d receive an old op with seq %d\n", kv.me, op.SeqId)
 		var value string // 如果是Get则返回当前值
 		if op.OperationType == Enum_Get {
-			value = kv.kvStore[op.Key]
+			val, exist := kv.kvStore[op.Key]
+			if exist {
+				value = val
+			} else {
+				kv.mu.Unlock()
+				return OpResult{ErrNoKey, ""}
+			}
 		}
 		kv.mu.Unlock()
 		return OpResult{OK, value}
@@ -127,12 +138,15 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 	// 第二阶段：提交到Raft共识
 	index, _, isLeader := kv.rf.Start(op)
 	if !isLeader {
+		fmt.Printf("kvid: %d is not leader with seq %d\n", kv.me, op.SeqId)
 		return OpResult{ErrWrongLeader, ""}
 	}
 
 	// 第三阶段：创建等待通道
 	kv.mu.Lock()
 	ch := make(chan OpResult, 1)
+	_, ok := kv.waitCh[index]
+	raft.Assert(!ok, "already have index???")
 	kv.waitCh[index] = ch
 	kv.mu.Unlock()
 
@@ -145,8 +159,10 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 	// 第四阶段：等待结果或超时
 	select {
 	case result := <-ch:
+		fmt.Printf("kvid: %d success with seq %d\n", kv.me, op.SeqId)
 		return result
 	case <-time.After(20 * time.Millisecond):
+		fmt.Printf("kvid: %d timeout with seq %d\n", kv.me, op.SeqId)
 		return OpResult{ErrTimeout, ""}
 	}
 
@@ -154,7 +170,15 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 
 func (kv *KVServer) applier() {
 	for msg := range kv.applyCh { // 持续监听提交的日志
+		if kv.killed() {
+			break
+		}
 		if !msg.CommandValid { // 忽略非命令消息（如快照）
+			result := OpResult{Err: OK}
+			// 通知等待的RPC
+			if ch, ok := kv.waitCh[msg.CommandIndex]; ok {
+				ch <- result // 非阻塞发送（通道带缓冲）
+			}
 			continue
 		}
 
@@ -162,15 +186,26 @@ func (kv *KVServer) applier() {
 		kv.mu.Lock()
 
 		// 幂等性检查
-		if msg.CommandIndex <= kv.lastApplied {
-			kv.mu.Unlock()
-			continue
-		}
+		// if msg.CommandIndex <= kv.lastApplied {
+		// 	continue
+		// } else if msg.CommandIndex != kv.lastApplied+1 {
+		// 	fmt.Printf("???kvid: %d, msg.CommandIndex: %d, kv.lastApplied: %d\n", kv.me, msg.CommandIndex, kv.lastApplied)
+		// 	raft.Assert(false, "what")
+		// }
 
 		lastSeq, exists := kv.lastSeq[op.ClientId]
 		result := OpResult{Err: OK}
 
 		if !exists || op.SeqId > lastSeq { // 新请求
+			if exists {
+				if op.SeqId != lastSeq+1 {
+					fmt.Printf("!!!kvid %d, seqid: %d, lastseq: %d!!!\n", kv.me, op.SeqId, lastSeq)
+				} else {
+					fmt.Printf("kvid %d do seqid: %d\n", kv.me, op.SeqId)
+				}
+
+				raft.Assert(op.SeqId == lastSeq+1, "seq jump!")
+			}
 			switch op.OperationType {
 			case Enum_Get: // Get需要特殊处理不存在的情况
 				if val, ok := kv.kvStore[op.Key]; ok {
@@ -187,7 +222,11 @@ func (kv *KVServer) applier() {
 			kv.lastSeq[op.ClientId] = op.SeqId
 		} else if op.OperationType == Enum_Get {
 			// 返回当前值但不修改状态
-			result.Value = kv.kvStore[op.Key]
+			if val, ok := kv.kvStore[op.Key]; ok {
+				result.Value = val
+			} else {
+				result.Err = ErrNoKey
+			}
 			//fmt.Printf("Get old value %s\n", result.Value)
 		}
 

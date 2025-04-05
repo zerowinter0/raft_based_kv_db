@@ -1,0 +1,690 @@
+Test: one client (4A) ...
+2 receive vote from 0 on term 1
+2 receive vote from 1 on term 1
+2 become leader in term 1
+2 receive vote from 4 on term 1
+2 receive vote from 3 on term 1
+  ... Passed --  15.2  5  7059  309
+Test: ops complete fast enough (4A) ...
+1 receive vote from 2 on term 1
+1 become leader in term 1
+1 receive vote from 0 on term 1
+--- FAIL: TestSpeed4A (36.43s)
+    test_test.go:419: Operations completed too slowly 36.207508ms/op > 33.333333ms/op
+Test: many clients (4A) ...
+1 receive vote from 4 on term 1
+1 receive vote from 2 on term 1
+1 become leader in term 1
+1 receive vote from 0 on term 1
+1 receive vote from 3 on term 1
+  ... Passed --  15.7  5 12249 1246
+Test: unreliable net, many clients (4A) ...
+0 receive vote from 3 on term 1
+0 receive vote from 2 on term 1
+0 become leader in term 1
+0 receive a reject vote from 1 on term 1 while 1 in term 1 with reasion 3
+4 receive a reject vote from 2 on term 1 while 2 in term 1 with reasion 2
+4 receive a reject vote from 0 on term 1 while 0 in term 1 with reasion 2
+4 receive a reject vote from 1 on term 1 while 1 in term 1 with reasion 3
+4 receive a reject vote from 3 on term 1 while 3 in term 1 with reasion 2
+  ... Passed --  17.8  5  9948  554
+Test: concurrent append to same key, unreliable (4A) ...
+0 receive vote from 1 on term 1
+0 become leader in term 1
+0 receive vote from 2 on term 1
+  ... Passed --   1.4  3   411   52
+1 receive vote from 4 on term 1
+1 receive vote from 3 on term 1
+1 become leader in term 1
+1 receive vote from 2 on term 1
+1 receive vote from 0 on term 1
+Test: progress in majority (4A) ...
+0 receive vote from 3 on term 2
+0 receive vote from 2 on term 2
+0 become leader in term 2
+  ... Passed --   0.3  5   186    2
+Test: no progress in minority (4A) ...
+  ... Passed --   1.4  5  1147    3
+Test: completion after heal (4A) ...
+  ... Passed --   1.0  5   415    3
+Test: partitions, one client (4A) ...
+2 receive vote from 4 on term 1
+2 receive vote from 0 on term 1
+2 become leader in term 1
+2 receive vote from 3 on term 1
+2 receive vote from 1 on term 1
+0 receive vote from 1 on term 2
+1 receive vote from 0 on term 3
+0 receive vote from 1 on term 4
+1 receive a reject vote from 3 on term 5 while 3 in term 5 with reasion 3
+1 receive vote from 0 on term 5
+1 receive a reject vote from 2 on term 5 while 2 in term 5 with reasion 3
+2 receive vote from 3 on term 6
+2 receive vote from 1 on term 6
+2 become leader in term 6
+2 receive vote from 0 on term 6
+4 receive a reject vote from 1 on term 4 while 1 in term 6 with reasion 1
+1 receive vote from 4 on term 7
+4 receive a reject vote from 1 on term 8 while 1 in term 8 with reasion 3
+1 receive vote from 4 on term 9
+2 receive vote from 1 on term 10
+2 receive vote from 4 on term 10
+2 become leader in term 10
+2 receive vote from 3 on term 10
+2 receive vote from 0 on term 10
+3 receive vote from 0 on term 11
+0 receive vote from 3 on term 12
+3 receive vote from 0 on term 13
+0 receive a reject vote from 4 on term 14 while 4 in term 14 with reasion 3
+0 receive a reject vote from 1 on term 14 while 1 in term 14 with reasion 3
+0 receive a reject vote from 2 on term 14 while 2 in term 14 with reasion 3
+0 receive vote from 3 on term 14
+2 receive vote from 4 on term 15
+2 receive vote from 3 on term 15
+2 become leader in term 15
+2 receive vote from 0 on term 15
+2 receive vote from 1 on term 15
+0 receive vote from 3 on term 16
+3 receive vote from 0 on term 17
+0 receive vote from 3 on term 18
+3 receive a reject vote from 4 on term 19 while 4 in term 19 with reasion 3
+0 receive a reject vote from 1 on term 19 while 1 in term 19 with reasion 3
+0 receive a reject vote from 2 on term 19 while 2 in term 19 with reasion 3
+2 receive vote from 0 on term 20
+2 receive vote from 1 on term 20
+2 become leader in term 20
+4 receive vote from 3 on term 20
+3 receive a reject vote from 4 on term 21 while 4 in term 21 with reasion 3
+4 receive vote from 3 on term 22
+2 receive vote from 4 on term 23
+2 receive vote from 0 on term 23
+2 become leader in term 23
+3 receive a reject vote from 1 on term 23 while 1 in term 23 with reasion 3
+1 receive vote from 3 on term 24
+3 receive a reject vote from 1 on term 25 while 1 in term 25 with reasion 3
+1 receive vote from 3 on term 26
+3 receive a reject vote from 1 on term 27 while 1 in term 27 with reasion 3
+3 receive a reject vote from 0 on term 27 while 0 in term 27 with reasion 3
+3 receive a reject vote from 4 on term 27 while 4 in term 27 with reasion 3
+1 receive a reject vote from 4 on term 28 while 4 in term 28 with reasion 3
+1 receive a reject vote from 0 on term 28 while 0 in term 28 with reasion 3
+1 receive vote from 3 on term 28
+0 receive vote from 3 on term 29
+0 receive vote from 1 on term 29
+0 become leader in term 29
+0 receive vote from 4 on term 29
+2 receive a reject vote from 4 on term 30 while 4 in term 30 with reasion 3
+2 receive a reject vote from 3 on term 30 while 3 in term 30 with reasion 3
+4 receive vote from 3 on term 31
+4 receive vote from 2 on term 31
+4 become leader in term 31
+1 receive vote from 2 on term 32
+1 receive vote from 3 on term 32
+1 become leader in term 32
+0 receive a reject vote from 2 on term 32 while 2 in term 32 with reasion 2
+2 receive vote from 0 on term 33
+2 receive vote from 0 on term 34
+0 receive a reject vote from 2 on term 35 while 2 in term 35 with reasion 3
+2 receive vote from 0 on term 36
+1 receive vote from 0 on term 37
+4 receive a reject vote from 2 on term 33 while 2 in term 36 with reasion 1
+4 receive vote from 3 on term 33
+2 receive a reject vote from 4 on term 37 while 4 in term 37 with reasion 3
+2 receive a reject vote from 3 on term 37 while 3 in term 37 with reasion 3
+3 receive vote from 2 on term 38
+3 receive vote from 4 on term 38
+3 become leader in term 38
+0 receive a reject vote from 1 on term 38 while 1 in term 38 with reasion 3
+1 receive vote from 0 on term 39
+0 receive a reject vote from 1 on term 40 while 1 in term 40 with reasion 3
+3 receive vote from 0 on term 41
+3 receive vote from 2 on term 41
+3 become leader in term 41
+3 receive vote from 4 on term 41
+1 receive a reject vote from 4 on term 43 while 4 in term 43 with reasion 3
+4 receive vote from 1 on term 44
+1 receive a reject vote from 4 on term 45 while 4 in term 45 with reasion 3
+4 receive vote from 1 on term 46
+4 receive vote from 1 on term 47
+3 receive vote from 1 on term 48
+3 receive vote from 4 on term 48
+3 become leader in term 48
+3 receive vote from 0 on term 48
+3 receive vote from 2 on term 48
+  ... Passed --  22.3  5 10611  286
+Test: partitions, many clients (4A) ...
+3 receive vote from 4 on term 1
+3 receive vote from 1 on term 1
+3 become leader in term 1
+3 receive vote from 0 on term 1
+3 receive vote from 2 on term 1
+0 receive vote from 2 on term 2
+2 receive vote from 0 on term 3
+0 receive vote from 2 on term 4
+2 receive a reject vote from 3 on term 5 while 3 in term 5 with reasion 3
+2 receive vote from 0 on term 5
+3 receive vote from 2 on term 6
+3 receive vote from 0 on term 6
+3 become leader in term 6
+1 receive vote from 4 on term 2
+4 receive vote from 1 on term 3
+2 receive a reject vote from 4 on term 9 while 4 in term 9 with reasion 3
+2 receive a reject vote from 0 on term 9 while 0 in term 9 with reasion 3
+2 receive a reject vote from 1 on term 9 while 1 in term 9 with reasion 3
+0 receive vote from 2 on term 10
+0 receive vote from 4 on term 10
+0 become leader in term 10
+0 receive vote from 1 on term 10
+2 receive vote from 4 on term 11
+4 receive vote from 2 on term 12
+4 receive vote from 2 on term 13
+0 receive vote from 2 on term 14
+0 receive vote from 1 on term 14
+0 become leader in term 14
+0 receive vote from 4 on term 14
+0 receive vote from 3 on term 14
+2 receive vote from 4 on term 15
+2 receive vote from 1 on term 15
+2 become leader in term 15
+2 receive vote from 3 on term 15
+4 receive a reject vote from 1 on term 19 while 1 in term 19 with reasion 3
+1 receive vote from 4 on term 20
+4 receive a reject vote from 1 on term 21 while 1 in term 21 with reasion 3
+1 receive vote from 4 on term 22
+2 receive vote from 4 on term 23
+2 receive vote from 1 on term 23
+2 become leader in term 23
+2 receive vote from 3 on term 23
+0 receive a reject vote from 4 on term 18 while 4 in term 23 with reasion 1
+0 receive a reject vote from 1 on term 18 while 1 in term 23 with reasion 1
+4 receive vote from 0 on term 24
+4 receive vote from 1 on term 24
+4 become leader in term 24
+0 receive a reject vote from 1 on term 27 while 1 in term 27 with reasion 3
+0 receive a reject vote from 3 on term 27 while 3 in term 27 with reasion 3
+3 receive vote from 0 on term 28
+3 receive vote from 1 on term 28
+3 become leader in term 28
+2 receive vote from 1 on term 29
+2 receive vote from 0 on term 29
+2 become leader in term 29
+  ... Passed --  22.9  5 17994 1249
+Test: restarts, one client (4A) ...
+3 receive vote from 0 on term 1
+3 receive vote from 4 on term 1
+3 become leader in term 1
+3 receive vote from 1 on term 1
+3 receive vote from 2 on term 1
+4 receive vote from 1 on term 2
+4 receive vote from 0 on term 2
+4 become leader in term 2
+4 receive vote from 2 on term 2
+4 receive vote from 3 on term 2
+1 receive vote from 4 on term 3
+1 receive vote from 2 on term 3
+1 become leader in term 3
+1 receive vote from 0 on term 3
+1 receive vote from 3 on term 3
+2 receive vote from 4 on term 4
+2 receive vote from 1 on term 4
+2 become leader in term 4
+2 receive vote from 3 on term 4
+2 receive vote from 0 on term 4
+  ... Passed --  18.7  5  7206  313
+Test: restarts, many clients (4A) ...
+1 receive vote from 4 on term 1
+1 receive vote from 3 on term 1
+1 become leader in term 1
+1 receive vote from 0 on term 1
+1 receive vote from 2 on term 1
+4 receive vote from 3 on term 2
+4 receive vote from 0 on term 2
+4 become leader in term 2
+4 receive vote from 2 on term 2
+4 receive vote from 1 on term 2
+1 receive vote from 0 on term 3
+1 receive vote from 3 on term 3
+1 become leader in term 3
+1 receive vote from 2 on term 3
+1 receive vote from 4 on term 3
+4 receive vote from 1 on term 4
+4 receive vote from 2 on term 4
+4 become leader in term 4
+4 receive vote from 3 on term 4
+4 receive vote from 0 on term 4
+  ... Passed --  19.3  5 12833 1233
+Test: unreliable net, restarts, many clients (4A) ...
+4 receive vote from 3 on term 1
+2 receive vote from 1 on term 1
+2 receive vote from 0 on term 1
+2 become leader in term 1
+2 receive a reject vote from 4 on term 1 while 4 in term 1 with reasion 2
+2 receive a reject vote from 3 on term 1 while 3 in term 1 with reasion 2
+4 receive a reject vote from 1 on term 1 while 1 in term 1 with reasion 2
+1 receive vote from 4 on term 2
+1 receive a reject vote from 2 on term 2 while 2 in term 2 with reasion 2
+2 receive vote from 3 on term 2
+1 receive a reject vote from 3 on term 2 while 3 in term 2 with reasion 2
+2 receive a reject vote from 4 on term 2 while 4 in term 2 with reasion 2
+2 receive vote from 0 on term 2
+2 become leader in term 2
+0 receive vote from 4 on term 3
+2 receive vote from 3 on term 3
+2 receive vote from 1 on term 3
+2 become leader in term 3
+0 receive a reject vote from 3 on term 3 while 3 in term 3 with reasion 2
+0 receive a reject vote from 1 on term 3 while 1 in term 3 with reasion 2
+2 receive a reject vote from 0 on term 3 while 0 in term 3 with reasion 2
+2 receive a reject vote from 4 on term 3 while 4 in term 3 with reasion 2
+0 receive a reject vote from 2 on term 3 while 2 in term 3 with reasion 2
+1 receive vote from 0 on term 4
+1 receive vote from 4 on term 4
+1 become leader in term 4
+1 receive a reject vote from 3 on term 4 while 3 in term 4 with reasion 2
+1 receive a reject vote from 2 on term 4 while 2 in term 4 with reasion 2
+  ... Passed --  20.6  5 10010  533
+Test: restarts, partitions, many clients (4A) ...
+4 receive vote from 3 on term 1
+4 receive vote from 2 on term 1
+4 become leader in term 1
+4 receive vote from 0 on term 1
+4 receive vote from 1 on term 1
+3 receive vote from 1 on term 2
+1 receive vote from 3 on term 3
+3 receive vote from 1 on term 4
+4 receive vote from 1 on term 5
+3 receive a reject vote from 0 on term 5 while 0 in term 5 with reasion 3
+3 receive a reject vote from 2 on term 5 while 2 in term 5 with reasion 3
+0 receive vote from 3 on term 6
+0 receive vote from 2 on term 6
+0 become leader in term 6
+4 receive vote from 1 on term 6
+1 receive a reject vote from 4 on term 7 while 4 in term 7 with reasion 3
+4 receive vote from 1 on term 8
+0 receive vote from 1 on term 9
+0 receive vote from 4 on term 9
+0 become leader in term 9
+0 receive vote from 3 on term 9
+1 receive a reject vote from 0 on term 10 while 0 in term 10 with reasion 3
+1 receive vote from 4 on term 10
+1 receive vote from 3 on term 10
+1 become leader in term 10
+2 receive a reject vote from 3 on term 9 while 3 in term 10 with reasion 1
+2 receive a reject vote from 0 on term 9 while 0 in term 10 with reasion 1
+3 receive vote from 2 on term 11
+3 receive vote from 0 on term 11
+3 become leader in term 11
+4 receive a reject vote from 0 on term 11 while 0 in term 11 with reasion 2
+0 receive vote from 4 on term 12
+0 receive vote from 4 on term 13
+4 receive a reject vote from 0 on term 14 while 0 in term 14 with reasion 3
+4 receive a reject vote from 3 on term 14 while 3 in term 14 with reasion 3
+4 receive a reject vote from 1 on term 14 while 1 in term 14 with reasion 3
+4 receive a reject vote from 2 on term 14 while 2 in term 14 with reasion 3
+0 receive a reject vote from 2 on term 15 while 2 in term 15 with reasion 3
+0 receive a reject vote from 3 on term 15 while 3 in term 15 with reasion 3
+0 receive a reject vote from 1 on term 15 while 1 in term 15 with reasion 3
+0 receive vote from 4 on term 15
+3 receive vote from 0 on term 16
+3 receive vote from 1 on term 16
+3 become leader in term 16
+3 receive vote from 4 on term 16
+3 receive vote from 2 on term 16
+0 receive vote from 4 on term 17
+0 receive vote from 3 on term 17
+0 become leader in term 17
+0 receive vote from 2 on term 17
+0 receive vote from 1 on term 17
+4 receive vote from 1 on term 18
+4 receive vote from 3 on term 18
+4 become leader in term 18
+0 receive a reject vote from 1 on term 19 while 1 in term 19 with reasion 3
+0 receive a reject vote from 3 on term 19 while 3 in term 19 with reasion 3
+1 receive vote from 0 on term 20
+1 receive vote from 3 on term 20
+1 become leader in term 20
+4 receive a reject vote from 3 on term 21 while 3 in term 21 with reasion 3
+4 receive a reject vote from 0 on term 21 while 0 in term 21 with reasion 3
+3 receive vote from 4 on term 22
+3 receive vote from 0 on term 22
+3 become leader in term 22
+2 receive a reject vote from 1 on term 23 while 1 in term 23 with reasion 3
+1 receive vote from 2 on term 24
+2 receive a reject vote from 1 on term 25 while 1 in term 25 with reasion 3
+1 receive vote from 2 on term 26
+3 receive vote from 2 on term 27
+3 receive vote from 0 on term 27
+3 become leader in term 27
+3 receive vote from 1 on term 27
+3 receive vote from 4 on term 27
+0 receive vote from 4 on term 28
+0 receive vote from 3 on term 28
+0 become leader in term 28
+0 receive vote from 1 on term 28
+0 receive vote from 2 on term 28
+2 receive vote from 1 on term 29
+2 receive vote from 4 on term 29
+2 become leader in term 29
+0 receive a reject vote from 1 on term 30 while 1 in term 30 with reasion 3
+1 receive vote from 0 on term 31
+0 receive a reject vote from 1 on term 32 while 1 in term 32 with reasion 3
+1 receive vote from 0 on term 33
+2 receive vote from 0 on term 34
+2 receive vote from 4 on term 34
+2 become leader in term 34
+1 receive a reject vote from 3 on term 34 while 3 in term 34 with reasion 3
+3 receive vote from 1 on term 35
+0 receive a reject vote from 2 on term 35 while 2 in term 35 with reasion 3
+0 receive vote from 4 on term 35
+2 receive vote from 4 on term 36
+2 receive vote from 0 on term 36
+2 become leader in term 36
+1 receive a reject vote from 3 on term 36 while 3 in term 36 with reasion 3
+3 receive vote from 1 on term 37
+1 receive a reject vote from 3 on term 38 while 3 in term 38 with reasion 3
+2 receive vote from 1 on term 39
+2 receive vote from 4 on term 39
+2 become leader in term 39
+2 receive vote from 0 on term 39
+2 receive vote from 3 on term 39
+4 receive vote from 3 on term 40
+4 receive vote from 0 on term 40
+4 become leader in term 40
+4 receive vote from 1 on term 40
+4 receive vote from 2 on term 40
+  ... Passed --  26.5  5 17771 1147
+Test: unreliable net, restarts, partitions, many clients (4A) ...
+4 receive vote from 2 on term 1
+3 receive a reject vote from 0 on term 1 while 0 in term 1 with reasion 2
+3 receive a reject vote from 4 on term 1 while 4 in term 1 with reasion 2
+3 receive a reject vote from 2 on term 1 while 2 in term 1 with reasion 2
+3 receive a reject vote from 1 on term 1 while 1 in term 1 with reasion 2
+1 receive vote from 0 on term 2
+1 receive vote from 2 on term 2
+1 become leader in term 2
+1 receive vote from 4 on term 2
+4 receive vote from 0 on term 3
+4 receive vote from 2 on term 3
+4 become leader in term 3
+4 receive vote from 3 on term 3
+0 receive vote from 2 on term 4
+2 receive a reject vote from 0 on term 5 while 0 in term 5 with reasion 2
+4 receive vote from 2 on term 6
+0 receive a reject vote from 2 on term 6 while 2 in term 6 with reasion 2
+0 receive a reject vote from 4 on term 6 while 4 in term 6 with reasion 2
+4 receive a reject vote from 0 on term 6 while 0 in term 6 with reasion 2
+1 receive vote from 3 on term 4
+2 receive a reject vote from 4 on term 7 while 4 in term 7 with reasion 3
+0 receive a reject vote from 4 on term 7 while 4 in term 7 with reasion 3
+0 receive a reject vote from 2 on term 7 while 2 in term 7 with reasion 2
+4 receive vote from 0 on term 8
+4 receive vote from 2 on term 8
+4 become leader in term 8
+1 receive a reject vote from 3 on term 5 while 3 in term 5 with reasion 2
+3 receive vote from 1 on term 6
+4 receive vote from 0 on term 9
+4 receive vote from 3 on term 9
+4 become leader in term 9
+4 receive vote from 2 on term 9
+4 receive a reject vote from 1 on term 9 while 1 in term 9 with reasion 2
+0 receive a reject vote from 4 on term 12 while 4 in term 12 with reasion 3
+3 receive a reject vote from 2 on term 10 while 2 in term 10 with reasion 3
+4 receive vote from 0 on term 13
+0 receive a reject vote from 1 on term 14 while 1 in term 14 with reasion 3
+0 receive a reject vote from 4 on term 14 while 4 in term 14 with reasion 3
+2 receive vote from 3 on term 11
+0 receive a reject vote from 4 on term 16 while 4 in term 16 with reasion 2
+3 receive a reject vote from 2 on term 12 while 2 in term 12 with reasion 3
+1 receive a reject vote from 4 on term 16 while 4 in term 16 with reasion 2
+1 receive a reject vote from 0 on term 16 while 0 in term 16 with reasion 2
+0 receive a reject vote from 1 on term 16 while 1 in term 16 with reasion 2
+4 receive vote from 2 on term 17
+4 receive vote from 3 on term 17
+4 become leader in term 17
+1 receive a reject vote from 0 on term 17 while 0 in term 17 with reasion 2
+1 receive vote from 0 on term 18
+0 receive a reject vote from 1 on term 19 while 1 in term 19 with reasion 3
+1 receive vote from 0 on term 20
+0 receive a reject vote from 4 on term 21 while 4 in term 21 with reasion 3
+0 receive a reject vote from 1 on term 21 while 1 in term 21 with reasion 3
+4 receive vote from 1 on term 22
+4 receive vote from 0 on term 22
+4 become leader in term 22
+2 receive a reject vote from 3 on term 18 while 3 in term 18 with reasion 2
+3 receive vote from 2 on term 19
+1 receive vote from 4 on term 23
+1 receive vote from 3 on term 23
+1 become leader in term 23
+1 receive vote from 0 on term 23
+1 receive vote from 2 on term 23
+4 receive vote from 3 on term 24
+3 receive vote from 4 on term 25
+4 receive a reject vote from 2 on term 26 while 2 in term 26 with reasion 3
+4 receive a reject vote from 0 on term 26 while 0 in term 26 with reasion 3
+3 receive a reject vote from 2 on term 27 while 2 in term 27 with reasion 3
+3 receive vote from 4 on term 27
+3 receive a reject vote from 0 on term 27 while 0 in term 27 with reasion 3
+0 receive vote from 4 on term 28
+0 receive vote from 3 on term 28
+0 become leader in term 28
+0 receive vote from 2 on term 28
+3 receive vote from 2 on term 29
+3 receive vote from 4 on term 29
+3 become leader in term 29
+0 receive a reject vote from 4 on term 30 while 4 in term 30 with reasion 3
+0 receive vote from 1 on term 30
+1 receive a reject vote from 4 on term 32 while 4 in term 32 with reasion 3
+0 receive a reject vote from 4 on term 32 while 4 in term 32 with reasion 3
+0 receive a reject vote from 1 on term 32 while 1 in term 32 with reasion 2
+4 receive vote from 0 on term 33
+4 receive vote from 1 on term 33
+4 become leader in term 33
+1 receive vote from 2 on term 34
+1 receive vote from 0 on term 34
+1 become leader in term 34
+1 receive vote from 3 on term 34
+1 receive a reject vote from 4 on term 34 while 4 in term 34 with reasion 2
+  ... Passed --  27.9  5 14185  486
+Test: unreliable net, restarts, partitions, random keys, many clients (4A) ...
+2 receive vote from 6 on term 1
+2 receive vote from 0 on term 1
+2 receive vote from 4 on term 1
+2 become leader in term 1
+2 receive vote from 5 on term 1
+1 receive a reject vote from 6 on term 1 while 6 in term 1 with reasion 2
+1 receive a reject vote from 4 on term 1 while 4 in term 1 with reasion 2
+2 receive a reject vote from 1 on term 1 while 1 in term 1 with reasion 2
+1 receive a reject vote from 5 on term 1 while 5 in term 1 with reasion 2
+1 receive a reject vote from 3 on term 1 while 3 in term 1 with reasion 3
+1 receive vote from 3 on term 2
+3 receive vote from 1 on term 3
+1 receive a reject vote from 6 on term 4 while 6 in term 4 with reasion 3
+1 receive a reject vote from 4 on term 4 while 4 in term 4 with reasion 3
+1 receive a reject vote from 5 on term 4 while 5 in term 4 with reasion 3
+2 receive vote from 3 on term 4
+4 receive vote from 0 on term 5
+4 receive vote from 1 on term 5
+4 receive vote from 6 on term 5
+4 become leader in term 5
+3 receive a reject vote from 2 on term 6 while 2 in term 6 with reasion 2
+4 receive vote from 6 on term 7
+4 receive vote from 3 on term 7
+0 receive a reject vote from 6 on term 6 while 6 in term 7 with reasion 1
+0 receive a reject vote from 3 on term 6 while 3 in term 7 with reasion 1
+0 receive a reject vote from 4 on term 6 while 4 in term 7 with reasion 1
+0 receive a reject vote from 5 on term 6 while 5 in term 7 with reasion 1
+1 receive a reject vote from 2 on term 6 while 2 in term 7 with reasion 1
+5 receive vote from 0 on term 8
+5 receive vote from 6 on term 8
+5 receive vote from 4 on term 8
+5 become leader in term 8
+2 receive a reject vote from 1 on term 8 while 1 in term 8 with reasion 3
+1 receive vote from 2 on term 9
+1 receive a reject vote from 0 on term 10 while 0 in term 10 with reasion 3
+1 receive a reject vote from 6 on term 10 while 6 in term 10 with reasion 3
+1 receive vote from 2 on term 10
+6 receive vote from 0 on term 11
+6 receive vote from 1 on term 11
+1 receive a reject vote from 0 on term 12 while 0 in term 12 with reasion 3
+1 receive vote from 2 on term 12
+0 receive vote from 2 on term 13
+0 receive vote from 6 on term 13
+2 receive a reject vote from 1 on term 14 while 1 in term 14 with reasion 3
+2 receive a reject vote from 0 on term 14 while 0 in term 14 with reasion 3
+2 receive a reject vote from 6 on term 14 while 6 in term 14 with reasion 3
+6 receive vote from 1 on term 15
+6 receive vote from 2 on term 15
+6 receive vote from 0 on term 15
+6 become leader in term 15
+2 receive vote from 0 on term 16
+2 receive vote from 4 on term 16
+2 receive vote from 1 on term 16
+2 become leader in term 16
+2 receive a reject vote from 3 on term 16 while 3 in term 16 with reasion 2
+2 receive a reject vote from 6 on term 16 while 6 in term 16 with reasion 2
+6 receive vote from 0 on term 17
+6 receive vote from 5 on term 17
+5 receive vote from 6 on term 18
+0 receive a reject vote from 5 on term 18 while 5 in term 18 with reasion 2
+0 receive a reject vote from 6 on term 18 while 6 in term 18 with reasion 2
+6 receive vote from 0 on term 19
+6 receive vote from 5 on term 19
+2 receive vote from 5 on term 20
+4 receive a reject vote from 0 on term 17 while 0 in term 19 with reasion 1
+4 receive vote from 1 on term 17
+0 receive a reject vote from 3 on term 20 while 3 in term 20 with reasion 3
+4 receive a reject vote from 6 on term 17 while 6 in term 19 with reasion 1
+0 receive a reject vote from 4 on term 20 while 4 in term 20 with reasion 3
+0 receive a reject vote from 1 on term 20 while 1 in term 20 with reasion 3
+0 receive vote from 6 on term 20
+1 receive vote from 0 on term 21
+1 receive vote from 4 on term 21
+5 receive a reject vote from 2 on term 21 while 2 in term 21 with reasion 2
+1 receive vote from 6 on term 21
+1 become leader in term 21
+2 receive a reject vote from 5 on term 21 while 5 in term 21 with reasion 2
+1 receive vote from 6 on term 23
+1 receive vote from 3 on term 23
+1 receive vote from 4 on term 23
+1 become leader in term 23
+1 receive vote from 5 on term 23
+2 receive a reject vote from 0 on term 23 while 0 in term 23 with reasion 3
+0 receive vote from 2 on term 24
+2 receive a reject vote from 1 on term 27 while 1 in term 27 with reasion 3
+2 receive a reject vote from 5 on term 27 while 5 in term 27 with reasion 3
+6 receive a reject vote from 0 on term 24 while 0 in term 26 with reasion 1
+6 receive vote from 4 on term 24
+1 receive vote from 5 on term 28
+1 receive vote from 2 on term 28
+3 receive a reject vote from 4 on term 24 while 4 in term 24 with reasion 2
+3 receive a reject vote from 0 on term 24 while 0 in term 26 with reasion 1
+3 receive a reject vote from 6 on term 24 while 6 in term 26 with reasion 1
+0 receive a reject vote from 4 on term 27 while 4 in term 27 with reasion 3
+4 receive vote from 6 on term 28
+4 receive vote from 3 on term 28
+6 receive a reject vote from 0 on term 27 while 0 in term 28 with reasion 1
+6 receive a reject vote from 4 on term 27 while 4 in term 28 with reasion 1
+2 receive a reject vote from 1 on term 29 while 1 in term 29 with reasion 3
+2 receive a reject vote from 5 on term 29 while 5 in term 29 with reasion 2
+5 receive vote from 1 on term 29
+3 receive vote from 0 on term 29
+3 receive vote from 4 on term 29
+3 receive vote from 6 on term 29
+3 become leader in term 29
+1 receive vote from 5 on term 30
+1 receive vote from 2 on term 30
+2 receive a reject vote from 1 on term 31 while 1 in term 31 with reasion 3
+2 receive a reject vote from 0 on term 31 while 0 in term 31 with reasion 3
+2 receive a reject vote from 4 on term 31 while 4 in term 31 with reasion 3
+2 receive a reject vote from 5 on term 31 while 5 in term 31 with reasion 3
+5 receive a reject vote from 0 on term 32 while 0 in term 32 with reasion 3
+5 receive a reject vote from 4 on term 32 while 4 in term 32 with reasion 3
+5 receive vote from 1 on term 32
+5 receive vote from 2 on term 32
+0 receive vote from 5 on term 33
+0 receive vote from 1 on term 33
+0 receive vote from 4 on term 33
+0 become leader in term 33
+0 receive vote from 2 on term 33
+4 receive vote from 1 on term 34
+0 receive vote from 3 on term 34
+4 receive vote from 6 on term 34
+4 receive a reject vote from 3 on term 34 while 3 in term 34 with reasion 2
+4 receive vote from 5 on term 34
+4 become leader in term 34
+0 receive a reject vote from 6 on term 34 while 6 in term 34 with reasion 2
+0 receive vote from 2 on term 34
+0 receive a reject vote from 4 on term 34 while 4 in term 34 with reasion 2
+4 receive a reject vote from 2 on term 34 while 2 in term 34 with reasion 2
+4 receive a reject vote from 0 on term 34 while 0 in term 34 with reasion 2
+4 receive vote from 0 on term 37
+4 receive vote from 1 on term 37
+4 receive vote from 2 on term 37
+4 become leader in term 37
+4 receive vote from 6 on term 37
+4 receive a reject vote from 3 on term 37 while 3 in term 37 with reasion 2
+5 receive a reject vote from 0 on term 37 while 0 in term 37 with reasion 2
+0 receive vote from 5 on term 38
+0 receive vote from 6 on term 38
+6 receive vote from 5 on term 39
+5 receive a reject vote from 0 on term 40 while 0 in term 40 with reasion 3
+0 receive a reject vote from 5 on term 39 while 5 in term 40 with reasion 1
+5 receive a reject vote from 6 on term 40 while 6 in term 40 with reasion 3
+6 receive vote from 0 on term 41
+4 receive vote from 3 on term 42
+4 receive vote from 0 on term 42
+5 receive a reject vote from 1 on term 41 while 1 in term 41 with reasion 3
+5 receive a reject vote from 2 on term 41 while 2 in term 41 with reasion 3
+3 receive vote from 4 on term 43
+6 receive a reject vote from 2 on term 42 while 2 in term 42 with reasion 3
+3 receive vote from 0 on term 43
+6 receive vote from 5 on term 42
+2 receive vote from 1 on term 43
+2 receive vote from 5 on term 43
+2 receive vote from 6 on term 43
+2 become leader in term 43
+0 receive a reject vote from 3 on term 44 while 3 in term 44 with reasion 3
+0 receive a reject vote from 4 on term 44 while 4 in term 44 with reasion 3
+3 receive vote from 4 on term 45
+0 receive a reject vote from 4 on term 45 while 4 in term 46 with reasion 1
+0 receive a reject vote from 3 on term 45 while 3 in term 45 with reasion 2
+4 receive vote from 0 on term 46
+4 receive vote from 3 on term 46
+2 receive vote from 6 on term 47
+2 receive vote from 4 on term 47
+2 receive vote from 1 on term 47
+2 become leader in term 47
+5 receive a reject vote from 3 on term 44 while 3 in term 47 with reasion 1
+3 receive a reject vote from 5 on term 48 while 5 in term 48 with reasion 3
+5 receive vote from 3 on term 49
+2 receive vote from 0 on term 50
+2 receive vote from 5 on term 50
+2 receive vote from 1 on term 50
+2 become leader in term 50
+2 receive vote from 6 on term 50
+1 receive vote from 6 on term 51
+1 receive a reject vote from 0 on term 51 while 0 in term 51 with reasion 2
+4 receive a reject vote from 6 on term 51 while 6 in term 51 with reasion 2
+4 receive vote from 3 on term 51
+4 receive a reject vote from 1 on term 51 while 1 in term 51 with reasion 2
+1 receive a reject vote from 3 on term 51 while 3 in term 51 with reasion 2
+0 receive a reject vote from 4 on term 51 while 4 in term 51 with reasion 2
+0 receive vote from 5 on term 51
+4 receive a reject vote from 0 on term 51 while 0 in term 51 with reasion 2
+0 receive a reject vote from 3 on term 51 while 3 in term 51 with reasion 2
+1 receive a reject vote from 5 on term 51 while 5 in term 51 with reasion 2
+1 receive a reject vote from 2 on term 51 while 2 in term 51 with reasion 2
+0 receive a reject vote from 6 on term 51 while 6 in term 51 with reasion 2
+1 receive a reject vote from 4 on term 51 while 4 in term 51 with reasion 2
+0 receive a reject vote from 2 on term 51 while 2 in term 51 with reasion 2
+0 receive a reject vote from 1 on term 51 while 1 in term 51 with reasion 2
+2 receive vote from 0 on term 52
+2 receive vote from 6 on term 52
+2 receive vote from 1 on term 52
+2 become leader in term 52
+2 receive vote from 4 on term 52
+2 receive vote from 5 on term 52
+  ... Passed --  35.1  7 29124 1034
+FAIL
+exit status 1
+FAIL	6.5840/kvraft	283.440s

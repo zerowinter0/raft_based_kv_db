@@ -104,6 +104,22 @@ type Raft struct {
 	// newest_heartbeat_ch  chan bool
 }
 
+func max(a int, b int) int {
+	if a > b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func min(a int, b int) int {
+	if a > b {
+		return b
+	} else {
+		return a
+	}
+}
+
 func Assert(tmp bool, msg string) {
 	if !tmp {
 		fmt.Println(msg)
@@ -492,11 +508,13 @@ func (rf *Raft) ServerCommitListener() {
 			msgs = append(msgs, msg)
 			rf.last_applied++
 		}
-		rf.mu.Unlock()
-		for _, msg := range msgs {
-			rf.applyCh <- *msg
+		if len(msgs) > 0 {
+			rf.mu.Unlock()
+			for _, msg := range msgs {
+				rf.applyCh <- *msg
+			}
+			rf.mu.Lock()
 		}
-		rf.mu.Lock()
 	}
 	rf.mu.Unlock()
 }
