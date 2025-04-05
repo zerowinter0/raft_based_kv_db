@@ -48,10 +48,11 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 	ck.mu.Lock()
 	// 生成固定seqId
 	//seq := ck.GetSeq()
-	ck.seqId++
+
 	seq := ck.seqId
+	ck.seqId++
+
 	clientId := ck.clientId
-	leaderId := ck.leaderId
 	ck.mu.Unlock()
 
 	for {
@@ -63,7 +64,7 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 
 		if op == "Get" {
 			args := GetArgs{Key: key, ClientId: clientId, SeqId: seq}
-			ok = ck.servers[leaderId].Call("KVServer.Get", &args, &reply)
+			ok = ck.servers[ck.leaderId].Call("KVServer.Get", &args, &reply)
 		} else {
 			args := PutAppendArgs{
 				Key:      key,
@@ -73,7 +74,7 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 				SeqId:    seq,
 			}
 			var putReply PutAppendReply
-			ok = ck.servers[leaderId].Call("KVServer.PutAppend", &args, &putReply)
+			ok = ck.servers[ck.leaderId].Call("KVServer.PutAppend", &args, &putReply)
 			reply.Err = putReply.Err
 		}
 
@@ -81,7 +82,6 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 			switch reply.Err {
 			case OK:
 				ck.mu.Lock()
-				ck.leaderId = leaderId // 更新Leader缓存
 				ck.mu.Unlock()
 				if op == "Get" {
 					return reply.Value
@@ -89,11 +89,13 @@ func (ck *Clerk) sendRequest(op string, key string, value string) string {
 				return ""
 			case ErrNoKey:
 				return ""
+			case ErrTimeout:
+				//fmt.Printf("server %d timeout\n", leaderId)
 			}
 		}
 
 		// 失败时尝试下一个节点
-		leaderId = (leaderId + 1) % len(ck.servers)
+		ck.leaderId = (ck.leaderId + 1) % len(ck.servers)
 		//fmt.Printf(" - failed, trying next server %d\n", leaderId)
 
 		time_sleep_millsecond(10) // 等待10ms再尝试下一个节点

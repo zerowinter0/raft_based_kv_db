@@ -19,6 +19,7 @@ type PutAppendArgs struct {
 	Op       string // "Put" or "Append"
 	SeqId    int    // Sequence ID to detect duplicate requests
 	ClientId int64  // Client ID to track requests
+	Type_put bool   //if false, then append
 }
 
 type PutAppendReply struct {

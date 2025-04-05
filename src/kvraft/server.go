@@ -42,8 +42,8 @@ type KVServer struct {
 	mu      sync.Mutex
 	me      int
 	rf      *raft.Raft
-	applyCh chan raft.ApplyMsg
-	dead    int32 // set by Kill()
+	applyCh chan raft.ApplyMsg // Raft提交日志的通道
+	dead    int32              // set by Kill()
 
 	maxraftstate int // snapshot if log grows this big
 
@@ -52,7 +52,7 @@ type KVServer struct {
 	// Your definitions here.
 	kvStore     map[string]string     // The actual key-value store
 	lastSeq     map[int64]int         // Last sequence number seen for each client
-	waitCh      map[int]chan OpResult // Channels to notify waiting RPCs of applied ops
+	waitCh      map[int]chan OpResult // 等待结果的通知通道（按日志索引）
 	lastApplied int                   // Last applied index to detect duplicates
 }
 
@@ -105,13 +105,17 @@ func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	reply.Err = result.Err
 }
 
+// 快速去重检查：在持有锁的情况下检查是否已处理过该请求，避免不必要的Raft提交。
+// Raft提交：只有Leader节点能成功提交操作，否则返回ErrWrongLeader。
+// 异步等待：创建与日志索引关联的通道，等待applier协程处理完成后的通知。
+// 超时机制：防止因网络分区等原因导致永久阻塞。
 func (kv *KVServer) HandleOp(op Op) OpResult {
 	kv.mu.Lock()
 
 	// Check for duplicate request
 	if seq, ok := kv.lastSeq[op.ClientId]; ok && seq >= op.SeqId {
 		// This is a duplicate request, return cached result
-		var value string
+		var value string // 如果是Get则返回当前值
 		if op.OperationType == Enum_Get {
 			value = kv.kvStore[op.Key]
 		}
@@ -120,12 +124,13 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 	}
 	kv.mu.Unlock()
 
-	// Start the operation in Raft
+	// 第二阶段：提交到Raft共识
 	index, _, isLeader := kv.rf.Start(op)
 	if !isLeader {
 		return OpResult{ErrWrongLeader, ""}
 	}
 
+	// 第三阶段：创建等待通道
 	kv.mu.Lock()
 	ch := make(chan OpResult, 1)
 	kv.waitCh[index] = ch
@@ -137,72 +142,19 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 		kv.mu.Unlock()
 	}()
 
-	// Wait for the operation to be applied or timeout
+	// 第四阶段：等待结果或超时
 	select {
 	case result := <-ch:
 		return result
-	case <-time.After(200 * time.Millisecond):
+	case <-time.After(20 * time.Millisecond):
 		return OpResult{ErrTimeout, ""}
 	}
 
 }
 
 func (kv *KVServer) applier() {
-	//for !kv.killed() {
-	//	msg := <-kv.applyCh
-	//
-	//	// Check if the message is a command
-	//	if msg.CommandValid {
-	//		op := msg.Command.(Op)
-	//		kv.mu.Lock()
-	//
-	//		// Skip if we've already applied this
-	//		if msg.CommandIndex <= kv.lastApplied {
-	//			kv.mu.Unlock()
-	//			continue
-	//		}
-	//
-	//		kv.lastApplied = msg.CommandIndex
-	//
-	//		var result OpResult
-	//		result.Err = OK
-	//
-	//		// Check for duplicate
-	//		if seq, ok := kv.lastSeq[op.ClientId]; !ok || seq < op.SeqId {
-	//			// Execute the operation
-	//			switch op.OperationType {
-	//			case Enum_Get:
-	//				value, exists := kv.kvStore[op.Key]
-	//				if exists {
-	//					result.Value = value
-	//				} else {
-	//					result.Err = ErrNoKey
-	//				}
-	//			case Enum_Put:
-	//				kv.kvStore[op.Key] = op.Value
-	//			case Enum_Append:
-	//				kv.kvStore[op.Key] += op.Value
-	//			}
-	//
-	//			// Update last sequence number
-	//			kv.lastSeq[op.ClientId] = op.SeqId
-	//		} else {
-	//			// Duplicate request, return cached result
-	//			if op.OperationType == Enum_Get {
-	//				result.Value = kv.kvStore[op.Key]
-	//			}
-	//		}
-	//
-	//		// Notify waiting RPC handler if any
-	//		if ch, ok := kv.waitCh[msg.CommandIndex]; ok {
-	//			ch <- result
-	//		}
-	//
-	//		kv.mu.Unlock()
-	//	}
-	//}
-	for msg := range kv.applyCh {
-		if !msg.CommandValid {
+	for msg := range kv.applyCh { // 持续监听提交的日志
+		if !msg.CommandValid { // 忽略非命令消息（如快照）
 			continue
 		}
 
@@ -218,9 +170,9 @@ func (kv *KVServer) applier() {
 		lastSeq, exists := kv.lastSeq[op.ClientId]
 		result := OpResult{Err: OK}
 
-		if !exists || op.SeqId > lastSeq {
+		if !exists || op.SeqId > lastSeq { // 新请求
 			switch op.OperationType {
-			case Enum_Get:
+			case Enum_Get: // Get需要特殊处理不存在的情况
 				if val, ok := kv.kvStore[op.Key]; ok {
 					result.Value = val
 				} else {
@@ -241,7 +193,7 @@ func (kv *KVServer) applier() {
 
 		// 通知等待的RPC
 		if ch, ok := kv.waitCh[msg.CommandIndex]; ok {
-			ch <- result
+			ch <- result // 非阻塞发送（通道带缓冲）
 		}
 
 		kv.lastApplied = msg.CommandIndex

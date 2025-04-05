@@ -90,14 +90,18 @@ type Raft struct {
 	applyCh        chan ApplyMsg
 	applyCV        sync.Cond
 	heartbeatTimer *time.Timer
+	snapshot       []byte
 
 	//used for time out
 	receive_heartbeat bool
 
 	//below is only for leader, is a server becomes a leader, it should initialize these status
-	next_indexes    []int
-	matches_indexes []int
-	votes           int
+	next_indexes      []int
+	matches_indexes   []int
+	votes             int
+	able_commit_index int
+	// newest_heartbeat_map map[int]int //用于检查在最新一轮heartbeat中，是否收到了大多数服务器的相应，服务器在收到Start后认为自己是leader前需要用这个来检查
+	// newest_heartbeat_ch  chan bool
 }
 
 func Assert(tmp bool, msg string) {
@@ -111,6 +115,10 @@ func (rf *Raft) setHeartBeatTimer(t int) {
 	rf.mu.Lock()
 	rf.heartbeatTimer.Reset(time.Duration(t) * time.Millisecond)
 	rf.mu.Unlock()
+}
+
+func (rf *Raft) last_log() LogEntry {
+	return rf.log[len(rf.log)-1]
 }
 
 // return currentTerm and whether this server
@@ -143,13 +151,14 @@ func (rf *Raft) persist() {
 	// e.Encode(rf.yyy)
 	// raftstate := w.Bytes()
 	// rf.persister.Save(raftstate, nil)
+	//持久化时要持有锁！
 	w := new(bytes.Buffer)
 	e := labgob.NewEncoder(w)
 	e.Encode(rf.current_term)
 	e.Encode(rf.voted_for)
 	e.Encode(rf.log)
 	raftstate := w.Bytes()
-	rf.persister.Save(raftstate, nil)
+	rf.persister.Save(raftstate, rf.snapshot)
 }
 
 // restore previously persisted state.
@@ -191,8 +200,93 @@ func (rf *Raft) readPersist(data []byte) {
 // service no longer needs the log through (and including)
 // that index. Raft should now trim its log as much as possible.
 func (rf *Raft) Snapshot(index int, snapshot []byte) {
+	fmt.Printf("%d make snapshot\n", rf.me)
+	rf.mu.Lock()
+	fmt.Printf("%d make snapshot 2\n", rf.me)
+	defer rf.mu.Unlock()
 	// Your code here (3D).
+	if index <= rf.log[0].Index {
+		// 这个snapshot太老了
+		fmt.Printf("%d make snapshot too old\n", rf.me)
+		return
+	}
 
+	Assert(index <= rf.commit_index, "snapshot中有没commit的log")
+	rf.last_applied = max(rf.last_applied, index)
+	rf.log = rf.log[index-rf.log[0].Index:]
+	rf.snapshot = snapshot
+
+	rf.persist()
+	fmt.Printf("%d make snapshot finish\n", rf.me)
+}
+
+// field names must start with capital letters!
+type InstallSnapshotArgs struct {
+	Term                int
+	Leader_id           int
+	Last_included_index int
+	Last_included_term  int
+	Data                []byte
+}
+
+// example InstallSnapshot RPC reply structure.
+// field names must start with capital letters!
+type InstallSnapshotReply struct {
+	Term   int
+	Accept bool
+}
+
+// example InstallSnapshot RPC handler.
+func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapshotReply) {
+	fmt.Printf("%d install snapshot from %d\n", rf.me, args.Leader_id)
+	defer fmt.Printf("%d install snapshot from %d finished\n", rf.me, args.Leader_id)
+	rf.mu.Lock()
+	reply.Accept = false
+	reply.Term = rf.current_term
+	if args.Term < rf.current_term {
+		rf.mu.Unlock()
+		return
+	}
+	if rf.current_term < args.Term {
+		rf.current_term = args.Term
+		rf.voted_for = -1
+	}
+	rf.identity = Enum_Follower
+	rf.receive_heartbeat = true
+
+	if args.Last_included_index <= rf.log[0].Index {
+		// 这个snapshot太老了
+		rf.mu.Unlock()
+		return
+	}
+	if args.Last_included_index > rf.commit_index {
+		rf.commit_index = args.Last_included_index
+	}
+	if args.Last_included_index > rf.last_log().Index {
+		rf.log = []LogEntry{
+			{
+				Index: args.Last_included_index,
+				Term:  args.Last_included_term,
+			},
+		}
+	} else {
+		rf.log = rf.log[args.Last_included_index-rf.log[0].Index:]
+	}
+	rf.commit_index = max(rf.commit_index, args.Last_included_index)
+	rf.last_applied = max(rf.last_applied, args.Last_included_index)
+	rf.snapshot = args.Data
+	msg := ApplyMsg{
+		CommandValid:  false,
+		SnapshotValid: true,
+		Snapshot:      args.Data,
+		SnapshotTerm:  args.Last_included_term,
+		SnapshotIndex: args.Last_included_index,
+	}
+	rf.persist()
+	rf.mu.Unlock()
+	rf.applyCh <- msg
+
+	reply.Accept = true
 }
 
 // example RequestVote RPC arguments structure.
@@ -240,12 +334,11 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	if args.Term > rf.current_term {
 		//如果我的日志更加新，但我现在的term比其他日志很久的服务器都要低很多，那么我可以用这段代码立刻将term与其他服务器追平，以确保我能尽快当选新leader
 		rf.current_term = args.Term
-		if rf.identity == Enum_Leader {
-			rf.identity = Enum_Follower
-		}
+		rf.voted_for = -1
+		rf.identity = Enum_Follower
 		rf.persist()
 	}
-	last_entry := rf.log[len(rf.log)-1]
+	last_entry := rf.last_log()
 	if args.Last_log_term < last_entry.Term || (args.Last_log_term == last_entry.Term && args.Last_log_index < last_entry.Index) {
 		//candidate log too old
 		reply.Vote_granted = false
@@ -279,7 +372,8 @@ type AppendEntriesReply struct {
 	Term    int
 	Success bool
 	//if not success, it can add a expect index
-	Index_expect int
+	Index_expect  int
+	Conflict_term int
 }
 
 // 实现AppendEntries RPC
@@ -309,19 +403,21 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.identity = Enum_Follower
 		rf.receive_heartbeat = true
 	}
-
-	if rf.log[len(rf.log)-1].Index < args.Prev_log_index {
+	last_log := rf.last_log()
+	if last_log.Index < args.Prev_log_index {
 		reply.Term = rf.current_term
 		reply.Success = false
-		reply.Index_expect = rf.log[len(rf.log)-1].Index + 1
+		reply.Index_expect = last_log.Index + 1
 
 		return
 	}
+	Assert(args.Prev_log_index >= rf.log[0].Index, "prev_log_index too small")
 
-	if rf.log[args.Prev_log_index].Term != args.Prev_log_term {
+	if rf.log[args.Prev_log_index-rf.log[0].Index].Term != args.Prev_log_term {
 		reply.Term = rf.current_term
 		reply.Success = false
 		reply.Index_expect = args.Prev_log_index //上一位冲突了，期望获取上一位的数据
+		reply.Conflict_term = rf.log[args.Prev_log_index-rf.log[0].Index].Term
 		//这一位的index应该大于commit index
 		if args.Prev_log_index <= rf.commit_index {
 			fmt.Printf("%d 日志系统异常,已提交日志%d与leader冲突,自己这位的term为%d,leader的term为%d\n", rf.me, args.Prev_log_index, rf.log[args.Prev_log_index].Term, args.Prev_log_term)
@@ -333,15 +429,15 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	var rf_log_changed = false
 	//接收请求
 	for _, log_entry := range args.Log_entries {
-		if len(rf.log) <= log_entry.Index {
-			if len(rf.log) != log_entry.Index {
+		if rf.last_log().Index+1 <= log_entry.Index {
+			if rf.last_log().Index+1 != log_entry.Index {
 				fmt.Printf("日志系统异常,accept了一个超过最新log的log\n")
 				os.Exit(1)
 			}
 			rf.log = append(rf.log, log_entry)
 			rf_log_changed = true
 		} else {
-			if rf.log[log_entry.Index].Term != log_entry.Term {
+			if rf.log[log_entry.Index-rf.log[0].Index].Term != log_entry.Term {
 				//这一位的index应该大于commit index
 				if log_entry.Index <= rf.commit_index {
 					fmt.Printf("%d 日志系统异常,已提交日志%d被重写\n", rf.me, log_entry.Index)
@@ -349,7 +445,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 				}
 
 				//内容有冲突，删除冲突index及之后的所有内容
-				rf.log = rf.log[:log_entry.Index]
+				rf.log = rf.log[:log_entry.Index-rf.log[0].Index]
 
 				rf.log = append(rf.log, log_entry)
 
@@ -361,9 +457,10 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.persist()
 	}
 	if args.Commit_index > rf.commit_index {
-		new_commit_index := min(args.Commit_index, len(rf.log))
+		new_commit_index := min(args.Commit_index, rf.last_log().Index)
 		Assert(rf.commit_index <= new_commit_index, "new_commit_index小于commit_index")
 		if rf.commit_index < new_commit_index { //有可能leader的commitindex更后，但这条信息是一个心跳，没有实质的commit index更新
+			//Assert(rf.log[new_commit_index-rf.log[0].Index].Term == rf.current_term, "follower commit an old log!")
 			rf.commit_index = new_commit_index
 			//应用于状态机
 			rf.applyCV.Signal()
@@ -380,16 +477,19 @@ func (rf *Raft) ServerCommitListener() {
 	rf.mu.Lock()
 	for !rf.killed() {
 		rf.applyCV.Wait()
+		msgs := []ApplyMsg{}
 		for rf.last_applied < rf.commit_index {
-			msg := &ApplyMsg{
-				CommandValid: true,
-				Command:      rf.log[rf.last_applied+1].Msg,
-				CommandIndex: rf.last_applied + 1,
+			msg := ApplyMsg{
+				CommandValid:  true,
+				Command:       rf.log[rf.last_applied+1-rf.log[0].Index].Msg,
+				CommandIndex:  rf.last_applied + 1,
+				SnapshotValid: false,
 			}
-			rf.mu.Unlock()
-			rf.applyCh <- *msg
-			rf.mu.Lock()
+			msgs = append(msgs, msg)
 			rf.last_applied++
+		}
+		for _, msg := range msgs {
+			rf.applyCh <- msg
 		}
 	}
 	rf.mu.Unlock()
@@ -432,6 +532,11 @@ func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *Ap
 	return ok
 }
 
+func (rf *Raft) sendInstallSnapshot(server int, args *InstallSnapshotArgs, reply *InstallSnapshotReply) bool {
+	ok := rf.peers[server].Call("Raft.InstallSnapshot", args, reply)
+	return ok
+}
+
 // the service using Raft (e.g. a k/v server) wants to start
 // agreement on the next command to be appended to Raft's log. if this
 // server isn't the leader, returns false. otherwise start the
@@ -452,7 +557,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.mu.Lock()
 
 	isLeader = (rf.identity == Enum_Leader)
-	index = len(rf.log)
+	index = rf.last_log().Index + 1
 	term = rf.current_term
 
 	//如果不是leader，直接返回
@@ -462,6 +567,31 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	}
 	//fmt.Printf("%d leader receive cmd %d\n", rf.me, index)
 
+	//check still keep connect with most server
+
+	//以下内容用于检查是否仍然是最新leader，开启会导致3B 3C有些test不过。
+	// {
+	// for k := range rf.newest_heartbeat_map {
+	// 	delete(rf.newest_heartbeat_map, k)
+	// }
+	// 	rf.mu.Unlock()
+
+	// 	for i := 0; i < 20; i++ {
+	// 		rf.mu.Lock()
+	// 		if len(rf.newest_heartbeat_map)+1 > len(rf.peers)/2 {
+	// 			rf.mu.Unlock()
+	// 			break
+	// 		}
+	// 		rf.mu.Unlock()
+	// 		time.Sleep(10 * time.Millisecond)
+	// 	}
+
+	// 	rf.mu.Lock()
+	// 	if len(rf.newest_heartbeat_map)+1 <= len(rf.peers)/2 { //保守的认为自己不是leader
+	// 		rf.mu.Unlock()
+	// 		return index, term, false
+	// 	}
+	// }
 	log_entry := LogEntry{
 		Index: index,
 		Term:  term,
@@ -471,7 +601,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.log = append(rf.log, log_entry)
 	rf.persist()
 
-	rf.heartbeatTimer.Reset(15)
+	//rf.heartbeatTimer.Reset(15)
 	rf.mu.Unlock()
 
 	return index, term, isLeader
@@ -513,18 +643,19 @@ func (rf *Raft) heartbeat_sender() {
 			rf.mu.Unlock()
 			return
 		}
-		if rf.commit_index < len(rf.log)-1 {
+		if max(rf.commit_index, rf.able_commit_index-1) < rf.last_log().Index {
 			cnt_for_next_idx := 1
 			for idx := range rf.peers {
 				if idx == rf.me {
 					continue
 				}
-				if rf.matches_indexes[idx] > rf.commit_index {
+				if rf.matches_indexes[idx] > max(rf.commit_index, rf.able_commit_index-1) {
 					cnt_for_next_idx++
 				}
 			}
 			if cnt_for_next_idx > len(rf.peers)/2 {
-				rf.commit_index++ //无论何时更新commit index都要通知applyCV！
+				rf.commit_index = max(rf.commit_index, rf.able_commit_index-1) + 1 //无论何时更新commit index都要通知applyCV！
+				Assert(rf.log[rf.commit_index-rf.log[0].Index].Term == rf.current_term, "leader commit an old log!")
 				rf.applyCV.Signal()
 				//fmt.Printf("leader %d commit_index update to %d\n", rf.me, rf.commit_index)
 			}
@@ -545,20 +676,58 @@ func (rf *Raft) heartbeat_sender() {
 					return
 				}
 
-				the_last_idx := rf.log[len(rf.log)-1].Index
-				//fmt.Printf("%d\n", rf.next_indexes[idx])
+				if rf.next_indexes[idx] <= rf.log[0].Index { //要发Snapshot
+					Assert(rf.log[0].Index > 0, "没有snapshot但需求snapshot?")
+					args := &InstallSnapshotArgs{
+						Term:                rf.current_term,
+						Leader_id:           rf.me,
+						Last_included_index: rf.log[0].Index,
+						Last_included_term:  rf.log[0].Term,
+						Data:                rf.snapshot,
+					}
+
+					reply := &InstallSnapshotReply{}
+					rf.mu.Unlock()
+					res := rf.sendInstallSnapshot(idx, args, reply)
+					if res {
+						rf.mu.Lock()
+						defer rf.mu.Unlock()
+						if reply.Term > rf.current_term {
+							rf.current_term = reply.Term
+							rf.identity = Enum_Follower
+							rf.voted_for = -1
+							return
+						}
+						// if len(rf.newest_heartbeat_map) == len(rf.peers)/2 {
+						// 	rf.newest_heartbeat_ch <- true
+						// }
+						//rf.newest_heartbeat_map[idx] = 1
+						if reply.Accept {
+							rf.matches_indexes[idx] = max(rf.matches_indexes[idx], args.Last_included_index)
+							rf.next_indexes[idx] = rf.matches_indexes[idx] + 1
+						}
+						return
+					}
+					return
+				}
+
+				the_last_idx := rf.last_log().Index
 				args := &AppendEntriesArgs{
 					Term:           cur_term,
 					Leader_id:      rf.me,
-					Prev_log_index: rf.log[rf.next_indexes[idx]-1].Index,
-					Prev_log_term:  rf.log[rf.next_indexes[idx]-1].Term,
-					Log_entries:    rf.log[rf.next_indexes[idx]:len(rf.log)],
+					Prev_log_index: rf.log[rf.next_indexes[idx]-1-rf.log[0].Index].Index,
+					Prev_log_term:  rf.log[rf.next_indexes[idx]-1-rf.log[0].Index].Term,
+					Log_entries:    rf.log[rf.next_indexes[idx]-rf.log[0].Index:],
 					Commit_index:   rf.commit_index,
 				}
 				rf.mu.Unlock()
 
 				reply := &AppendEntriesReply{}
-				rf.sendAppendEntries(idx, args, reply)
+				res := rf.sendAppendEntries(idx, args, reply)
+
+				if !res {
+					return
+				}
 
 				rf.mu.Lock()
 				defer rf.mu.Unlock()
@@ -575,16 +744,31 @@ func (rf *Raft) heartbeat_sender() {
 					rf.persist()
 					return
 				}
-
+				// if len(rf.newest_heartbeat_map) == len(rf.peers)/2 {
+				// 	rf.newest_heartbeat_ch <- true
+				// }
+				//rf.newest_heartbeat_map[idx] = 1
 				if reply.Success {
 					rf.next_indexes[idx] = max(rf.next_indexes[idx], the_last_idx+1)
 					rf.matches_indexes[idx] = max(rf.matches_indexes[idx], the_last_idx)
 				} else if reply.Index_expect > 0 && reply.Index_expect < rf.next_indexes[idx] {
-					rf.next_indexes[idx] = reply.Index_expect
+					//normal back
+					//rf.next_indexes[idx] = reply.Index_expect
+
+					//quick back
+					fmt.Printf("it work?\n")
+					tmp := args.Prev_log_index
+					for tmp > rf.log[0].Index && rf.log[tmp-rf.log[0].Index].Term >= reply.Conflict_term {
+						tmp--
+						fmt.Printf("it work!\n")
+					}
+					rf.next_indexes[idx] = tmp
+				} else {
+					fmt.Printf("maybe wrong? %d\n", reply.Index_expect)
 				}
 			}(idx)
 		}
-		rf.setHeartBeatTimer(50)
+		rf.setHeartBeatTimer(10)
 	}
 }
 
@@ -598,17 +782,11 @@ func (rf *Raft) start_election() {
 		return
 	}
 	//fmt.Printf("%d 在term %d开始竞选\n", rf.me, rf.current_term)
-	var last_log_term int
-	if len(rf.log) == 0 {
-		last_log_term = -1
-	} else {
-		last_log_term = rf.log[len(rf.log)-1].Term
-	}
 	args := &RequestVoteArgs{
 		Term:           rf.current_term,
 		Candidate_id:   rf.me,
-		Last_log_index: len(rf.log) - 1,
-		Last_log_term:  last_log_term,
+		Last_log_index: rf.last_log().Index,
+		Last_log_term:  rf.last_log().Term,
 	}
 	rf.votes = 1
 	rf.mu.Unlock()
@@ -635,7 +813,7 @@ func (rf *Raft) start_election() {
 				// 	fmt.Printf("%d receive a reject vote from %d on term %d while %d in term %d with reasion %d\n", rf.me, idx, args.Term, idx, reply.Term, reply.Reject_reasion)
 				// }
 
-				if rf.current_term > args.Term {
+				if rf.current_term > args.Term || rf.identity != Enum_Candidate {
 					rf.mu.Unlock()
 					return
 				}
@@ -658,8 +836,16 @@ func (rf *Raft) start_election() {
 				rf.votes++
 				if rf.votes > len(rf.peers)/2 {
 					//当选成功
-					//fmt.Printf("%d become leader in term %d\n", rf.me, rf.current_term)
+					fmt.Printf("%d become leader in term %d\n", rf.me, rf.current_term)
+					rf.able_commit_index = rf.last_log().Index + 1
 					rf.identity = Enum_Leader
+					//下面这5句很重要，没有他们不能稳定过3B 3C
+					for i := range rf.peers {
+						rf.next_indexes[i] = rf.log[0].Index + 1
+						rf.matches_indexes[i] = rf.log[0].Index
+					}
+					rf.heartbeatTimer.Reset(0)
+					//上面这5句很重要，没有他们不能稳定过3B 3C
 					go rf.heartbeat_sender() //内部Unlock
 				} else {
 					rf.mu.Unlock()
@@ -697,7 +883,7 @@ func (rf *Raft) ticker() {
 			rf.receive_heartbeat = true //重置过期时间
 			//fmt.Printf("%d start election on term%d \n", rf.me, rf.current_term)
 			rf.mu.Unlock()
-			time_sleep_millsecond(100)
+			//time_sleep_millsecond(100)
 		} else {
 			rf.receive_heartbeat = false
 			rf.mu.Unlock()
@@ -705,7 +891,7 @@ func (rf *Raft) ticker() {
 
 		// pause for a random amount of time between 50 and 350
 		// milliseconds.
-		ms := 100 + (rand.Int63() % 500)
+		ms := 150 + (rand.Int63() % 150)
 		time.Sleep(time.Duration(ms) * time.Millisecond)
 	}
 }
@@ -744,8 +930,13 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	}
 	rf.matches_indexes = make([]int, len(peers))
 	rf.heartbeatTimer = time.NewTimer(0)
+
+	// rf.newest_heartbeat_map = make(map[int]int)
+	// rf.newest_heartbeat_ch = make(chan bool)
+
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
+	rf.snapshot = persister.snapshot
 
 	// start ticker goroutine to start elections
 	go rf.ticker()
