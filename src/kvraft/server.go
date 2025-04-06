@@ -61,6 +61,7 @@ type KVServer struct {
 type OpResult struct {
 	Err   Err    // Operation result (OK, ErrNoKey, etc.)
 	Value string // Value for Get operations
+	SeqId int    //for correctness!
 }
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
@@ -127,19 +128,19 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 				value = val
 			} else {
 				kv.mu.Unlock()
-				return OpResult{ErrNoKey, ""}
+				return OpResult{ErrNoKey, "", op.SeqId}
 			}
 		}
 		kv.mu.Unlock()
-		return OpResult{OK, value}
+		return OpResult{OK, value, op.SeqId}
 	}
 	kv.mu.Unlock()
 
 	// 第二阶段：提交到Raft共识
 	index, _, isLeader := kv.rf.Start(op)
-	if !isLeader {
-		fmt.Printf("kvid: %d is not leader with seq %d\n", kv.me, op.SeqId)
-		return OpResult{ErrWrongLeader, ""}
+	if index <= 0 || !isLeader {
+		fmt.Printf("kvid: %d is not leader with seq %d in idx %d\n", kv.me, op.SeqId, index)
+		return OpResult{ErrWrongLeader, "", op.SeqId}
 	}
 
 	// 第三阶段：创建等待通道
@@ -159,11 +160,14 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 	// 第四阶段：等待结果或超时
 	select {
 	case result := <-ch:
-		fmt.Printf("kvid: %d success with seq %d\n", kv.me, op.SeqId)
+		if result.SeqId != op.SeqId { //一个古老的人在等待某个index的commit，但这一位index真正commit的值却不是这个古老的人Start对应的值。
+			return OpResult{ErrWrongLeader, "", op.SeqId}
+		}
+		fmt.Printf("kvid: %d success with seq %d in idx %d\n", kv.me, op.SeqId, index)
 		return result
 	case <-time.After(20 * time.Millisecond):
-		fmt.Printf("kvid: %d timeout with seq %d\n", kv.me, op.SeqId)
-		return OpResult{ErrTimeout, ""}
+		fmt.Printf("kvid: %d timeout with seq %d in idx %d\n", kv.me, op.SeqId, index)
+		return OpResult{ErrTimeout, "", op.SeqId}
 	}
 
 }
@@ -194,14 +198,14 @@ func (kv *KVServer) applier() {
 		// }
 
 		lastSeq, exists := kv.lastSeq[op.ClientId]
-		result := OpResult{Err: OK}
+		result := OpResult{Err: OK, SeqId: op.SeqId}
 
 		if !exists || op.SeqId > lastSeq { // 新请求
 			if exists {
 				if op.SeqId != lastSeq+1 {
-					fmt.Printf("!!!kvid %d, seqid: %d, lastseq: %d!!!\n", kv.me, op.SeqId, lastSeq)
+					fmt.Printf("!!!kvid %d, seqid: %d, lastseq: %d in idx %d!!!\n", kv.me, op.SeqId, lastSeq, msg.CommandIndex)
 				} else {
-					fmt.Printf("kvid %d do seqid: %d\n", kv.me, op.SeqId)
+					fmt.Printf("kvid %d do seqid: %d in idx %d\n", kv.me, op.SeqId, msg.CommandIndex)
 				}
 
 				raft.Assert(op.SeqId == lastSeq+1, "seq jump!")
