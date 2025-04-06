@@ -40,6 +40,11 @@ type Op struct {
 	ClientId      int64         // Client ID to track requests
 }
 
+type Pair struct {
+	first  int64
+	second int
+}
+
 type KVServer struct {
 	mu      sync.Mutex
 	me      int
@@ -52,16 +57,15 @@ type KVServer struct {
 	// Your definitions here.
 
 	// Your definitions here.
-	kvStore     map[string]string     // The actual key-value store
-	lastSeq     map[int64]int         // Last sequence number seen for each client
-	waitCh      map[int]chan OpResult // 等待结果的通知通道（按日志索引）
-	lastApplied int                   // Last applied index to detect duplicates
+	kvStore     map[string]string      // The actual key-value store
+	lastSeq     map[int64]int          // Last sequence number seen for each client
+	waitCh      map[Pair]chan OpResult // 等待结果的通知通道（按日志索引）
+	lastApplied int                    // Last applied index to detect duplicates
 }
 
 type OpResult struct {
 	Err   Err    // Operation result (OK, ErrNoKey, etc.)
 	Value string // Value for Get operations
-	SeqId int    //for correctness!
 }
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
@@ -128,11 +132,11 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 				value = val
 			} else {
 				kv.mu.Unlock()
-				return OpResult{ErrNoKey, "", op.SeqId}
+				return OpResult{ErrNoKey, ""}
 			}
 		}
 		kv.mu.Unlock()
-		return OpResult{OK, value, op.SeqId}
+		return OpResult{OK, value}
 	}
 	kv.mu.Unlock()
 
@@ -140,34 +144,34 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 	index, _, isLeader := kv.rf.Start(op)
 	if index <= 0 || !isLeader {
 		fmt.Printf("kvid: %d is not leader with seq %d in idx %d\n", kv.me, op.SeqId, index)
-		return OpResult{ErrWrongLeader, "", op.SeqId}
+		return OpResult{ErrWrongLeader, ""}
 	}
 
 	// 第三阶段：创建等待通道
 	kv.mu.Lock()
 	ch := make(chan OpResult, 1)
-	_, ok := kv.waitCh[index]
+	_, ok := kv.waitCh[Pair{op.ClientId, op.SeqId}]
 	raft.Assert(!ok, "already have index???")
-	kv.waitCh[index] = ch
+	kv.waitCh[Pair{op.ClientId, op.SeqId}] = ch
 	kv.mu.Unlock()
 
 	defer func() {
 		kv.mu.Lock()
-		delete(kv.waitCh, index)
+		delete(kv.waitCh, Pair{op.ClientId, op.SeqId})
 		kv.mu.Unlock()
 	}()
 
 	// 第四阶段：等待结果或超时
 	select {
 	case result := <-ch:
-		if result.SeqId != op.SeqId { //一个古老的人在等待某个index的commit，但这一位index真正commit的值却不是这个古老的人Start对应的值。
-			return OpResult{ErrWrongLeader, "", op.SeqId}
-		}
+		// if result.SeqId != op.SeqId { //一个古老的人在等待某个index的commit，但这一位index真正commit的值却不是这个古老的人Start对应的值。
+		// 	return OpResult{ErrWrongLeader, ""}
+		// }
 		fmt.Printf("kvid: %d success with seq %d in idx %d\n", kv.me, op.SeqId, index)
 		return result
 	case <-time.After(20 * time.Millisecond):
 		fmt.Printf("kvid: %d timeout with seq %d in idx %d\n", kv.me, op.SeqId, index)
-		return OpResult{ErrTimeout, "", op.SeqId}
+		return OpResult{ErrTimeout, ""}
 	}
 
 }
@@ -178,11 +182,6 @@ func (kv *KVServer) applier() {
 			break
 		}
 		if !msg.CommandValid { // 忽略非命令消息（如快照）
-			result := OpResult{Err: OK}
-			// 通知等待的RPC
-			if ch, ok := kv.waitCh[msg.CommandIndex]; ok {
-				ch <- result // 非阻塞发送（通道带缓冲）
-			}
 			continue
 		}
 
@@ -198,7 +197,7 @@ func (kv *KVServer) applier() {
 		// }
 
 		lastSeq, exists := kv.lastSeq[op.ClientId]
-		result := OpResult{Err: OK, SeqId: op.SeqId}
+		result := OpResult{Err: OK}
 
 		if !exists || op.SeqId > lastSeq { // 新请求
 			if exists {
@@ -235,8 +234,9 @@ func (kv *KVServer) applier() {
 		}
 
 		// 通知等待的RPC
-		if ch, ok := kv.waitCh[msg.CommandIndex]; ok {
-			ch <- result // 非阻塞发送（通道带缓冲）
+		if ch, ok := kv.waitCh[Pair{op.ClientId, op.SeqId}]; ok {
+			ch <- result                                   // 非阻塞发送（通道带缓冲）
+			delete(kv.waitCh, Pair{op.ClientId, op.SeqId}) //这句很重要哦
 		}
 
 		kv.lastApplied = msg.CommandIndex
@@ -292,7 +292,7 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	// You may need initialization code here.
 	kv.kvStore = make(map[string]string)
 	kv.lastSeq = make(map[int64]int)
-	kv.waitCh = make(map[int]chan OpResult)
+	kv.waitCh = make(map[Pair]chan OpResult)
 	kv.lastApplied = 0
 
 	// Start applier goroutine to process committed entries
