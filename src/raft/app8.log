@@ -1,0 +1,147 @@
+INFO: 2025/04/13 14:12:42 raft.go:1043: 8 start
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 8 commit_index update to 110
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 8 commit_index update to 111
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 8 commit_index update to 112
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 8 commit_index update to 113
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 8 commit_index update to 114
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 8 commit_index update to 115
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 8 commit_index update to 116
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 8 commit_index update to 117
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 118
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 119
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 120
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 121
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 122
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 123
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 124
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 125
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 126
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 127
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 128
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 129
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 130
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 131
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 132
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 133
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 8 commit_index update to 134
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 135
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 136
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 137
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 138
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 139
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 140
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 141
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 142
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 143
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 144
+INFO: 2025/04/13 14:12:44 raft.go:548: follower 8 commit_index update to 145
+INFO: 2025/04/13 14:12:44 raft.go:869: 8 在term 16开始竞选
+INFO: 2025/04/13 14:12:44 raft.go:896: 8 receive vote from 9 on term 16
+INFO: 2025/04/13 14:12:44 raft.go:896: 8 receive vote from 2 on term 16
+INFO: 2025/04/13 14:12:44 raft.go:896: 8 receive vote from 1 on term 16
+INFO: 2025/04/13 14:12:44 raft.go:896: 8 receive vote from 5 on term 16
+INFO: 2025/04/13 14:12:44 raft.go:896: 8 receive vote from 0 on term 16
+INFO: 2025/04/13 14:12:44 raft.go:924: 8 become leader in term 16
+INFO: 2025/04/13 14:12:44 raft.go:654: 8 leader receive cmd 146
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 146
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 147
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 147
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 148
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 148
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 149
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 149
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 150
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 150
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 151
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 151
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 152
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 152
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 153
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 153
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 154
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 154
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 155
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 155
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 156
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 156
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 157
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 157
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 158
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 158
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 159
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 159
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 160
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 160
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 161
+INFO: 2025/04/13 14:12:45 raft.go:741: leader 8 commit_index update to 161
+INFO: 2025/04/13 14:12:45 raft.go:654: 8 leader receive cmd 162
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 162
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 163
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 163
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 164
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 164
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 165
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 165
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 166
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 166
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 167
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 167
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 168
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 168
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 169
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 169
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 170
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 170
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 171
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 171
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 172
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 172
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 173
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 173
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 174
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 174
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 175
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 175
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 176
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 176
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 177
+INFO: 2025/04/13 14:12:46 raft.go:741: leader 8 commit_index update to 177
+INFO: 2025/04/13 14:12:46 raft.go:654: 8 leader receive cmd 178
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 178
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 179
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 179
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 180
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 180
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 181
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 181
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 182
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 182
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 183
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 183
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 184
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 184
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 185
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 185
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 186
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 186
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 187
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 187
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 188
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 188
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 189
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 189
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 190
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 190
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 191
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 191
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 192
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 192
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 193
+INFO: 2025/04/13 14:12:47 raft.go:741: leader 8 commit_index update to 193
+INFO: 2025/04/13 14:12:47 raft.go:654: 8 leader receive cmd 194
+INFO: 2025/04/13 14:12:48 raft.go:741: leader 8 commit_index update to 194
+INFO: 2025/04/13 14:12:48 raft.go:654: 8 leader receive cmd 195
+INFO: 2025/04/13 14:12:48 raft.go:741: leader 8 commit_index update to 195
+INFO: 2025/04/13 14:12:48 raft.go:654: 8 leader receive cmd 196
+INFO: 2025/04/13 14:12:48 raft.go:741: leader 8 commit_index update to 196
+INFO: 2025/04/13 14:12:48 raft.go:654: 8 leader receive cmd 197

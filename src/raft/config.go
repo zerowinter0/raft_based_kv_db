@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"log"
 	"math/rand"
+	"os"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -62,11 +63,19 @@ type config struct {
 	bytes0    int64
 	maxIndex  int
 	maxIndex0 int
+
+	//mine
+	last_leader_id    int
+	last_leader_term  int
+	last_leader_log   interface{}
+	max_commit_log_id int
+	max_commit_term   int
+	killed            bool
 }
 
 var ncpu_once sync.Once
 
-func make_config(t *testing.T, n int, unreliable bool, snapshot bool) *config {
+func make_config(t *testing.T, n int, unreliable bool, snapshot bool, seeds ...int64) *config {
 	ncpu_once.Do(func() {
 		if runtime.NumCPU() < 2 {
 			fmt.Printf("warning: only one CPU, which may conceal locking bugs\n")
@@ -76,7 +85,11 @@ func make_config(t *testing.T, n int, unreliable bool, snapshot bool) *config {
 	runtime.GOMAXPROCS(4)
 	cfg := &config{}
 	cfg.t = t
-	cfg.net = labrpc.MakeNetwork()
+	if len(seeds) > 0 {
+		cfg.net = labrpc.MakeNetwork(seeds[n])
+	} else {
+		cfg.net = labrpc.MakeNetwork()
+	}
 	cfg.n = n
 	cfg.applyErr = make([]string, cfg.n)
 	cfg.rafts = make([]*Raft, cfg.n)
@@ -96,15 +109,25 @@ func make_config(t *testing.T, n int, unreliable bool, snapshot bool) *config {
 		applier = cfg.applierSnap
 	}
 	// create a full set of Rafts.
-	for i := 0; i < cfg.n; i++ {
-		cfg.logs[i] = map[int]interface{}{}
-		cfg.start1(i, applier)
+	if len(seeds) > 0 {
+		Assert(len(seeds) == cfg.n+1, "fuzz seeds count!=nodes count+1")
+		for i := 0; i < cfg.n; i++ {
+			cfg.logs[i] = map[int]interface{}{}
+			cfg.start1(i, applier, seeds[i])
+		}
+	} else {
+		for i := 0; i < cfg.n; i++ {
+			cfg.logs[i] = map[int]interface{}{}
+			cfg.start1(i, applier)
+		}
 	}
 
 	// connect everyone
 	for i := 0; i < cfg.n; i++ {
 		cfg.connect(i)
 	}
+
+	go cfg.checkerThread()
 
 	return cfg
 }
@@ -156,6 +179,8 @@ func (cfg *config) checkLogs(i int, m ApplyMsg) (string, bool) {
 	cfg.logs[i][m.CommandIndex] = v
 	if m.CommandIndex > cfg.maxIndex {
 		cfg.maxIndex = m.CommandIndex
+		cfg.max_commit_log_id = i
+		cfg.max_commit_term = m.CommandTerm
 	}
 	return err_msg, prevok
 }
@@ -274,7 +299,7 @@ func (cfg *config) applierSnap(i int, applyCh chan ApplyMsg) {
 // allocate new outgoing port file names, and a new
 // state persister, to isolate previous instance of
 // this server. since we cannot really kill it.
-func (cfg *config) start1(i int, applier func(int, chan ApplyMsg)) {
+func (cfg *config) start1(i int, applier func(int, chan ApplyMsg), seed ...int64) {
 	cfg.crash1(i)
 
 	// a fresh set of outgoing ClientEnd names.
@@ -318,8 +343,12 @@ func (cfg *config) start1(i int, applier func(int, chan ApplyMsg)) {
 	cfg.mu.Unlock()
 
 	applyCh := make(chan ApplyMsg)
-
-	rf := Make(ends, i, cfg.saved[i], applyCh)
+	var rf *Raft
+	if len(seed) > 0 {
+		rf = Make(ends, i, cfg.saved[i], applyCh, seed[0])
+	} else {
+		rf = Make(ends, i, cfg.saved[i], applyCh)
+	}
 
 	cfg.mu.Lock()
 	cfg.rafts[i] = rf
@@ -459,6 +488,145 @@ func (cfg *config) checkOneLeader() int {
 	return -1
 }
 
+func (cfg *config) checkOneLeaderWithTerm() (int, int) {
+
+	leaders := make(map[int][]int)
+	for i := 0; i < cfg.n; i++ {
+		if cfg.connected[i] && cfg.rafts[i] != nil {
+			if term, leader := cfg.rafts[i].GetState(); leader {
+				leaders[term] = append(leaders[term], i)
+			}
+		}
+	}
+
+	lastTermWithLeader := -1
+	for term, leaders := range leaders {
+		if len(leaders) > 1 {
+			cfg.t.Fatalf("term %d has %d (>1) leaders", term, len(leaders))
+		}
+		if term > lastTermWithLeader {
+			lastTermWithLeader = term
+		}
+	}
+
+	if len(leaders) != 0 {
+		return leaders[lastTermWithLeader][0], lastTermWithLeader
+	}
+	return -1, -1
+}
+
+func (cfg *config) checkLegal1() int {
+	leaders := make(map[int][]int)
+	for i := 0; i < cfg.n; i++ {
+		if cfg.connected[i] && cfg.rafts[i] != nil {
+			if term, leader := cfg.rafts[i].GetState(); leader {
+				leaders[term] = append(leaders[term], i)
+			}
+		}
+	}
+
+	lastTermWithLeader, leader_id := -1, -1
+	for term, leaders := range leaders {
+		if len(leaders) > 1 {
+			cfg.t.Fatalf("term %d has %d (>1) leaders", term, len(leaders))
+			return 1
+		}
+		if term > lastTermWithLeader {
+			lastTermWithLeader = term
+			leader_id = leaders[0]
+		}
+	}
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
+	//记录当前leader信息
+	if leader_id >= 0 && cfg.rafts[leader_id] != nil {
+		res, log := cfg.rafts[leader_id].getLeaderCurrentLog(lastTermWithLeader)
+		if res {
+			cfg.last_leader_id = leader_id
+			cfg.last_leader_log = log
+		} else {
+			cfg.last_leader_id = -1
+		}
+	}
+	return lastTermWithLeader
+}
+
+func (cfg *config) checkLegal2() {
+	leader_id, term := cfg.checkOneLeaderWithTerm()
+	if leader_id == -1 {
+		return
+	}
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
+	//如果leader未改变，则检查日志是否相等
+	if cfg.last_leader_id == leader_id && cfg.last_leader_term == term && cfg.rafts[leader_id] != nil {
+		cfg.rafts[leader_id].checkLegalTwo(cfg.last_leader_log, term)
+	}
+	//记录当前leader信息
+	res, log := cfg.rafts[leader_id].getLeaderCurrentLog(term)
+	if res {
+		cfg.last_leader_id = leader_id
+		cfg.last_leader_log = log
+	} else {
+		cfg.last_leader_id = -1
+	}
+}
+
+func (cfg *config) checkLegal3() {
+	for i := 0; i < cfg.n; i++ {
+		if cfg.rafts[i] == nil {
+			continue
+		}
+		log_i := cfg.rafts[i].getCurrentLog()
+		for j := i + 1; j < cfg.n; j++ {
+			if cfg.rafts[j] == nil {
+				continue
+			}
+			cfg.rafts[j].checkLegalThree(log_i)
+		}
+	}
+}
+
+func (cfg *config) checkLegal4() {
+	cfg.mu.Lock()
+	if cfg.rafts[cfg.max_commit_log_id] == nil {
+		cfg.mu.Unlock()
+		return
+	}
+	cur_log, cur_term := cfg.logs[cfg.max_commit_log_id], cfg.max_commit_term
+
+	cur_log_cp := make(map[int]interface{})
+	for k, v := range cur_log {
+		cur_log_cp[k] = v
+	}
+
+	cfg.mu.Unlock()
+	for i := 0; i < cfg.n; i++ {
+		if cfg.rafts[i] == nil {
+			continue
+		}
+		cfg.rafts[i].checkLegalFour(cur_log_cp, cur_term)
+	}
+}
+
+func (cfg *config) checkerThread() {
+	for {
+		cfg.mu.Lock()
+		if cfg.killed {
+			break
+		}
+		cfg.mu.Unlock()
+		time.Sleep(5 * time.Millisecond)
+		cfg.checkLegal1()
+		time.Sleep(5 * time.Millisecond)
+		cfg.checkLegal2()
+		time.Sleep(5 * time.Millisecond)
+		cfg.checkLegal3()
+		time.Sleep(5 * time.Millisecond)
+		cfg.checkLegal4()
+	}
+}
+
 // check that everyone agrees on the term.
 func (cfg *config) checkTerms() int {
 	term := -1
@@ -557,11 +725,23 @@ func (cfg *config) wait(index int, n int, startTerm int) interface{} {
 // if retry==false, calls Start() only once, in order
 // to simplify the early Lab 3B tests.
 func (cfg *config) one(cmd interface{}, expectedServers int, retry bool) int {
+
+	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("无法打开日志文件: %v", err)
+	}
+	defer file.Close()
+
+	// 2. 创建一个新的 Logger，指定输出为文件
+	logger := log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+
 	t0 := time.Now()
 	starts := 0
+	logger.Printf("one start\n")
 	for time.Since(t0).Seconds() < 10 && cfg.checkFinished() == false {
 		// try all the servers, maybe one is the leader.
 		index := -1
+		logger.Printf("2\n")
 		for si := 0; si < cfg.n; si++ {
 			starts = (starts + 1) % cfg.n
 			var rf *Raft
@@ -578,32 +758,46 @@ func (cfg *config) one(cmd interface{}, expectedServers int, retry bool) int {
 				}
 			}
 		}
+		logger.Printf("3\n")
 
 		if index != -1 {
 			// somebody claimed to be the leader and to have
 			// submitted our command; wait a while for agreement.
 			t1 := time.Now()
+			logger.Printf("3.4\n")
 			for time.Since(t1).Seconds() < 2 {
+				logger.Printf("3.5\n")
 				nd, cmd1 := cfg.nCommitted(index)
+				logger.Printf("3.6\n")
 				if nd > 0 && nd >= expectedServers {
 					// committed
 					if cmd1 == cmd {
 						// and it was the command we submitted.
+						logger.Printf("one finish 2\n")
 						return index
 					}
 				}
+				logger.Printf("3.65\n")
 				time.Sleep(20 * time.Millisecond)
+				logger.Printf("3.66\n")
 			}
+			logger.Printf("3.7\n")
 			if retry == false {
+				logger.Printf("x!\n")
 				cfg.t.Fatalf("one(%v) failed to reach agreement because retry=false", cmd)
 			}
 		} else {
+			logger.Printf("3.8\n")
 			time.Sleep(50 * time.Millisecond)
+			logger.Printf("3.9\n")
 		}
+		logger.Printf("4\n")
 	}
 	if cfg.checkFinished() == false {
+		logger.Printf("y!\n")
 		cfg.t.Fatalf("one(%v) failed to reach agreement", cmd)
 	}
+	logger.Printf("one finish\n")
 	return -1
 }
 
@@ -632,10 +826,15 @@ func (cfg *config) end() {
 		nrpc := cfg.rpcTotal() - cfg.rpcs0      // number of RPC sends
 		nbytes := cfg.bytesTotal() - cfg.bytes0 // number of bytes
 		ncmds := cfg.maxIndex - cfg.maxIndex0   // number of Raft agreements reported
+		cfg.killed = true
 		cfg.mu.Unlock()
 
 		fmt.Printf("  ... Passed --")
 		fmt.Printf("  %4.1f  %d %4d %7d %4d\n", t, npeers, nrpc, nbytes, ncmds)
+	} else {
+		cfg.mu.Lock()
+		cfg.killed = true
+		cfg.mu.Unlock()
 	}
 }
 

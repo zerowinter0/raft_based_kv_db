@@ -1,0 +1,168 @@
+INFO: 2025/04/13 14:12:31 raft.go:1043: 7 start
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 1
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 2
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 3
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 4
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 5
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 6
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 7
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 8
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 9
+INFO: 2025/04/13 14:12:31 raft.go:548: follower 7 commit_index update to 10
+INFO: 2025/04/13 14:12:32 raft.go:869: 7 在term 3开始竞选
+INFO: 2025/04/13 14:12:32 raft.go:896: 7 receive vote from 9 on term 3
+INFO: 2025/04/13 14:12:32 raft.go:896: 7 receive vote from 2 on term 3
+INFO: 2025/04/13 14:12:32 raft.go:896: 7 receive vote from 1 on term 3
+INFO: 2025/04/13 14:12:32 raft.go:896: 7 receive vote from 4 on term 3
+INFO: 2025/04/13 14:12:32 raft.go:896: 7 receive vote from 6 on term 3
+INFO: 2025/04/13 14:12:32 raft.go:924: 7 become leader in term 3
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 11
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 11
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 12
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 12
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 13
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 13
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 14
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 14
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 15
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 15
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 16
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 16
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 17
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 17
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 18
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 18
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 19
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 19
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 20
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 20
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 21
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 21
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 22
+INFO: 2025/04/13 14:12:32 raft.go:741: leader 7 commit_index update to 22
+INFO: 2025/04/13 14:12:32 raft.go:654: 7 leader receive cmd 23
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 23
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 24
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 24
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 25
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 25
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 26
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 26
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 27
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 27
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 28
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 28
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 29
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 29
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 30
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 30
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 31
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 31
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 32
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 32
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 33
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 33
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 34
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 34
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 35
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 35
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 36
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 36
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 37
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 37
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 38
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 38
+INFO: 2025/04/13 14:12:33 raft.go:654: 7 leader receive cmd 39
+INFO: 2025/04/13 14:12:33 raft.go:741: leader 7 commit_index update to 39
+INFO: 2025/04/13 14:12:34 raft.go:654: 7 leader receive cmd 40
+INFO: 2025/04/13 14:12:34 raft.go:741: leader 7 commit_index update to 40
+INFO: 2025/04/13 14:12:34 raft.go:654: 7 leader receive cmd 41
+INFO: 2025/04/13 14:12:34 raft.go:869: 7 在term 7开始竞选
+INFO: 2025/04/13 14:12:34 raft.go:896: 7 receive vote from 9 on term 7
+INFO: 2025/04/13 14:12:34 raft.go:896: 7 receive vote from 5 on term 7
+INFO: 2025/04/13 14:12:34 raft.go:896: 7 receive vote from 2 on term 7
+INFO: 2025/04/13 14:12:34 raft.go:896: 7 receive vote from 1 on term 7
+INFO: 2025/04/13 14:12:34 raft.go:896: 7 receive vote from 4 on term 7
+INFO: 2025/04/13 14:12:34 raft.go:924: 7 become leader in term 7
+INFO: 2025/04/13 14:12:34 raft.go:896: 7 receive vote from 6 on term 7
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 42
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 43
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 44
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 45
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 46
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 47
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 48
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 49
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 50
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 51
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 52
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 53
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 54
+INFO: 2025/04/13 14:12:36 raft.go:548: follower 7 commit_index update to 55
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 56
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 57
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 58
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 59
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 60
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 61
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 62
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 63
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 64
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 65
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 66
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 67
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 68
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 69
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 70
+INFO: 2025/04/13 14:12:37 raft.go:548: follower 7 commit_index update to 71
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 72
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 73
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 74
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 75
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 76
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 77
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 78
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 79
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 80
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 81
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 82
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 83
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 84
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 85
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 86
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 87
+INFO: 2025/04/13 14:12:38 raft.go:548: follower 7 commit_index update to 88
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 89
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 90
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 91
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 92
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 93
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 94
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 95
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 96
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 97
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 98
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 99
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 100
+INFO: 2025/04/13 14:12:39 raft.go:548: follower 7 commit_index update to 101
+INFO: 2025/04/13 14:12:41 raft.go:548: follower 7 commit_index update to 103
+INFO: 2025/04/13 14:12:41 raft.go:548: follower 7 commit_index update to 104
+INFO: 2025/04/13 14:12:41 raft.go:548: follower 7 commit_index update to 105
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 106
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 107
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 108
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 109
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 110
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 111
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 112
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 113
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 114
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 115
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 116
+INFO: 2025/04/13 14:12:42 raft.go:548: follower 7 commit_index update to 117
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 7 commit_index update to 118
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 7 commit_index update to 119
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 7 commit_index update to 120
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 7 commit_index update to 121
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 7 commit_index update to 122
+INFO: 2025/04/13 14:12:43 raft.go:548: follower 7 commit_index update to 123

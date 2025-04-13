@@ -1,0 +1,10 @@
+INFO: 2025/04/13 14:13:01 raft.go:1043: 5 start
+INFO: 2025/04/13 14:13:02 raft.go:869: 5 在term 2开始竞选
+INFO: 2025/04/13 14:13:02 raft.go:898: 5 receive a reject vote from 2 on term 2 while 2 in term 2 with reasion 2
+INFO: 2025/04/13 14:13:02 raft.go:898: 5 receive a reject vote from 6 on term 2 while 6 in term 2 with reasion 2
+INFO: 2025/04/13 14:13:02 raft.go:896: 5 receive vote from 4 on term 2
+INFO: 2025/04/13 14:13:05 raft.go:869: 5 在term 7开始竞选
+INFO: 2025/04/13 14:13:05 raft.go:898: 5 receive a reject vote from 3 on term 7 while 3 in term 7 with reasion 2
+INFO: 2025/04/13 14:13:05 raft.go:896: 5 receive vote from 1 on term 7
+INFO: 2025/04/13 14:13:05 raft.go:896: 5 receive vote from 0 on term 7
+INFO: 2025/04/13 14:13:07 raft.go:869: 5 在term 11开始竞选
