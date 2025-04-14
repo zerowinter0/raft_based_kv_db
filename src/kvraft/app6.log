@@ -1,0 +1,19 @@
+INFO: 2025/04/15 00:23:48 raft.go:1050: 6 start
+INFO: 2025/04/15 00:23:48 raft.go:876: 6 在term 57开始竞选
+INFO: 2025/04/15 00:23:48 raft.go:905: 6 receive a reject vote from 0 on term 57 while 0 in term 57 with reasion 2
+INFO: 2025/04/15 00:23:48 raft.go:905: 6 receive a reject vote from 5 on term 57 while 5 in term 57 with reasion 2
+INFO: 2025/04/15 00:23:48 raft.go:905: 6 receive a reject vote from 2 on term 57 while 2 in term 57 with reasion 2
+INFO: 2025/04/15 00:23:48 raft.go:905: 6 receive a reject vote from 1 on term 57 while 1 in term 57 with reasion 2
+INFO: 2025/04/15 00:23INFO: 2025/04/15 00:23:48 raft.go:559: follower 6 commit_index update to 3005
+INFO: 2025/04/1INFO: 2025/04/15 00:23:48 raft.go:559: follower 6 commit_index INFO: 2025/04/15 00:23:48 raft.go:559: follower 6 commit_index update to 3007
+INFO: 2025/04/15 00:23:49 raft.go:559: follower 6 commit_index update to 3008
+update to 3415
+INFO: 2025/04/15 00:23:48 raft.go:559: follower 6 commit_index update to 3416
+INFO: 2025/04/15 00:23:48 raft.go:559: follower 6 commit_index update to 3418
+INFO: 2025/04/15 00:23:48 raft.go:559: follower 6 commit_index update to 3419
+INFO: 2025/04/15 00:23:48 raft.go:559: follower 6 commit_index update to 3420
+INFO: 2025/04/15 00:23:49 raft.go:559: follower 6 commit_index update to 3421
+INFO: 2025/04/15 00:23:49 raft.go:559: follower 6 commit_index update to 3422
+INFO: 2025/04/15 00:23:49 raft.go:559: follower 6 commit_index update to 3423
+INFO: 2025/04/15 00:23:49 raft.go:559: follower 6 commit_index update to 3424
+INFO: 2025/04/15 00:23:49 raft.go:559: follower 6 commit_index update to 3425

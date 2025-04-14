@@ -1,0 +1,36 @@
+INFO: 2025/04/15 00:23:48 raft.go:1050: 3 start
+INFO: 2025/04/15 00:23:48 raft.go:876: 3 在term 57开始竞选
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 5 on term 57
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 4 on term 57
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 0 on term 57
+INFO: 2025/04/15 00:23:48 raft.go:932: 3 become leader in term 57
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 2 on term 57
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 1 on term 57
+INFO: 2025/04/15 00:23:48 raft.go:665: 3 leader receive cmd 3413
+INFO: 2025/04/15 00:23:48 raft.go:724: leader 3 commit_index update to 3413
+INFO: 2025/04/15 00:23:48 raft.go:665: 3 leader receive cmd 3414
+INFO: 2025/04/15 00:23:48 raft.go:724: leader 3 commit_index update to 3414
+INFO: 2025/04/15 00:23:48 raft.go:665: 3 leader receive cmd 3415
+INFO: 2025/04/15 00:2INFO: 2025/04/15 00:23:48 raft.go:876: 3 在term 50开始竞选
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 4 on term 50
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 2 on term 50
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 0 on term 50
+INFO: 2025/04/15 00:23:48 raft.go:932: 3 become leader in term 50
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 5 on term 50
+INFO: 2025/04/15 00:23:48 raft.go:903: 3 receive vote from 6 on term 50
+INFO: 2025/04/15 00:23:48 raft.go:905: 3 receive a reject vote from 1 on term 50 while 1 in term 50 with reasion 2
+INFO: 2025/04/INFO: 2025/04/15 00:23:48 raft.go:665: 3 leader receive cmd 3420
+INFO: 2025/04/15 00:23:48 raft.go:724: leader 3 commit_index uINFO: 2025/04/15 00:23:48 raft.go:665: 3 leader receive cmd 3008
+INFO: 2025/04/15 00:23:49 raft.go:724: leader 3 commit_index update to 3008
+INFO: 2025/04/INFO: 2025/04/15 00:23:49 raft.go:665: 3 leader receive cmd 3422
+INFO: 2025/04/15 00:23:49 raft.go:724: leader 3 commit_index update to 3422
+INFO: 2025/04/15 00:23:49 raft.go:665: 3 leader receive cmd 3423
+INFO: 2025/04/15 00:23:49 raft.go:724: leader 3 commit_index update to 3423
+INFO: 2025/04/15 00:23:49 raft.go:665: 3 leader receive cmd 3424
+INFO: 2025/04/15 00:23:49 raft.go:724: leader 3 commit_index update to 3424
+INFO: 2025/04/15 00:23:49 raft.go:665: 3 leader receive cmd 3425
+INFO: 2025/04/15 00:23:49 raft.go:724: leader 3 commit_index update to 3425
+INFO: 2025/04/15 00:23:49 raft.go:665: 3 leader receive cmd 3426
+INFO: 2025/04/15 00:23:49 raft.go:724: leader 3 commit_index update to 3426
+INFO: 2025/04/15 00:23:49 raft.go:665: 3 leader receive cmd 3427
+INFO: 2025/04/15 00:23:49 raft.go:724: leader 3 commit_index update to 3427

@@ -1,7 +1,6 @@
 package kvraft
 
 import (
-	"fmt"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -124,7 +123,7 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 	// Check for duplicate request
 	if seq, ok := kv.lastSeq[op.ClientId]; ok && seq >= op.SeqId {
 		// This is a duplicate request, return cached result
-		fmt.Printf("kvid: %d receive an old op with seq %d\n", kv.me, op.SeqId)
+		//fmt.Printf("kvid: %d receive an old op with seq %d\n", kv.me, op.SeqId)
 		var value string // 如果是Get则返回当前值
 		if op.OperationType == Enum_Get {
 			val, exist := kv.kvStore[op.Key]
@@ -143,7 +142,7 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 	// 第二阶段：提交到Raft共识
 	index, _, isLeader := kv.rf.Start(op)
 	if index <= 0 || !isLeader {
-		fmt.Printf("kvid: %d is not leader with seq %d in idx %d\n", kv.me, op.SeqId, index)
+		//fmt.Printf("kvid: %d is not leader with seq %d in idx %d\n", kv.me, op.SeqId, index)
 		return OpResult{ErrWrongLeader, ""}
 	}
 
@@ -167,10 +166,10 @@ func (kv *KVServer) HandleOp(op Op) OpResult {
 		// if result.SeqId != op.SeqId { //一个古老的人在等待某个index的commit，但这一位index真正commit的值却不是这个古老的人Start对应的值。
 		// 	return OpResult{ErrWrongLeader, ""}
 		// }
-		fmt.Printf("kvid: %d success with seq %d in idx %d\n", kv.me, op.SeqId, index)
+		//fmt.Printf("kvid: %d success with seq %d in idx %d\n", kv.me, op.SeqId, index)
 		return result
 	case <-time.After(20 * time.Millisecond):
-		fmt.Printf("kvid: %d timeout with seq %d in idx %d\n", kv.me, op.SeqId, index)
+		//fmt.Printf("kvid: %d timeout with seq %d in idx %d\n", kv.me, op.SeqId, index)
 		return OpResult{ErrTimeout, ""}
 	}
 
@@ -202,9 +201,9 @@ func (kv *KVServer) applier() {
 		if !exists || op.SeqId > lastSeq { // 新请求
 			if exists {
 				if op.SeqId != lastSeq+1 {
-					fmt.Printf("!!!kvid %d, seqid: %d, lastseq: %d in idx %d!!!\n", kv.me, op.SeqId, lastSeq, msg.CommandIndex)
+					//fmt.Printf("!!!kvid %d, seqid: %d, lastseq: %d in idx %d!!!\n", kv.me, op.SeqId, lastSeq, msg.CommandIndex)
 				} else {
-					fmt.Printf("kvid %d do seqid: %d in idx %d\n", kv.me, op.SeqId, msg.CommandIndex)
+					//fmt.Printf("kvid %d do seqid: %d in idx %d\n", kv.me, op.SeqId, msg.CommandIndex)
 				}
 
 				raft.Assert(op.SeqId == lastSeq+1, "seq jump!")
