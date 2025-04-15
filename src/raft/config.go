@@ -71,6 +71,8 @@ type config struct {
 	max_commit_log_id int
 	max_commit_term   int
 	killed            bool
+	use_fuzz          bool
+	fuzz_score        int
 }
 
 var ncpu_once sync.Once
@@ -87,6 +89,7 @@ func make_config(t *testing.T, n int, unreliable bool, snapshot bool, seeds ...i
 	cfg.t = t
 	if len(seeds) > 0 {
 		cfg.net = labrpc.MakeNetwork(seeds[n])
+		cfg.use_fuzz = true
 	} else {
 		cfg.net = labrpc.MakeNetwork()
 	}
@@ -127,7 +130,9 @@ func make_config(t *testing.T, n int, unreliable bool, snapshot bool, seeds ...i
 		cfg.connect(i)
 	}
 
-	go cfg.checkerThread()
+	if cfg.use_fuzz {
+		go cfg.checkerThread()
+	}
 
 	return cfg
 }
@@ -151,6 +156,7 @@ func (cfg *config) crash1(i int) {
 	rf := cfg.rafts[i]
 	if rf != nil {
 		cfg.mu.Unlock()
+		cfg.fuzz_score += rf.fuzz_score
 		rf.Kill()
 		cfg.mu.Lock()
 		cfg.rafts[i] = nil
@@ -364,7 +370,7 @@ func (cfg *config) start1(i int, applier func(int, chan ApplyMsg), seed ...int64
 
 func (cfg *config) checkTimeout() {
 	// enforce a two minute real-time limit on each test
-	if !cfg.t.Failed() && time.Since(cfg.start) > 120*time.Second {
+	if !cfg.t.Failed() && time.Since(cfg.start) > 120*time.Second && !cfg.use_fuzz {
 		cfg.t.Fatal("test took longer than 120 seconds")
 	}
 }
@@ -561,6 +567,8 @@ func (cfg *config) checkLegal2() {
 	//如果leader未改变，则检查日志是否相等
 	if cfg.last_leader_id == leader_id && cfg.last_leader_term == term && cfg.rafts[leader_id] != nil {
 		cfg.rafts[leader_id].checkLegalTwo(cfg.last_leader_log, term)
+	} else {
+		return
 	}
 	//记录当前leader信息
 	res, log := cfg.rafts[leader_id].getLeaderCurrentLog(term)
@@ -625,6 +633,16 @@ func (cfg *config) checkerThread() {
 		time.Sleep(5 * time.Millisecond)
 		cfg.checkLegal4()
 	}
+}
+
+func (cfg *config) get_all_score() int {
+	score := cfg.fuzz_score
+	for i := 0; i < cfg.n; i++ {
+		if cfg.rafts[i] != nil {
+			score += cfg.rafts[i].get_fuzz_socre()
+		}
+	}
+	return score
 }
 
 // check that everyone agrees on the term.
@@ -819,7 +837,7 @@ func (cfg *config) begin(description string) {
 // and some performance numbers.
 func (cfg *config) end() {
 	cfg.checkTimeout()
-	if cfg.t.Failed() == false {
+	if cfg.t.Failed() == false && !cfg.use_fuzz {
 		cfg.mu.Lock()
 		t := time.Since(cfg.t0).Seconds()       // real time
 		npeers := cfg.n                         // number of Raft peers

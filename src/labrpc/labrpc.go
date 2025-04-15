@@ -49,15 +49,18 @@ package labrpc
 //   pass svc to srv.AddService()
 //
 
-import "6.5840/labgob"
-import "bytes"
-import "reflect"
-import "sync"
-import "log"
-import "strings"
-import "math/rand"
-import "time"
-import "sync/atomic"
+import (
+	"bytes"
+	"log"
+	"math/rand"
+	"reflect"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
+
+	"6.5840/labgob"
+)
 
 type reqMsg struct {
 	endname  interface{} // name of sending ClientEnd
@@ -135,9 +138,13 @@ type Network struct {
 	done           chan struct{} // closed when Network is cleaned up
 	count          int32         // total RPC count, for statistics
 	bytes          int64         // total bytes send, for statistics
+
+	//mine
+	use_fuzz  bool
+	fuzz_rand rand.Source
 }
 
-func MakeNetwork() *Network {
+func MakeNetwork(seed ...int64) *Network {
 	rn := &Network{}
 	rn.reliable = true
 	rn.ends = map[interface{}]*ClientEnd{}
@@ -146,6 +153,11 @@ func MakeNetwork() *Network {
 	rn.connections = map[interface{}](interface{}){}
 	rn.endCh = make(chan reqMsg)
 	rn.done = make(chan struct{})
+
+	if len(seed) > 0 {
+		rn.use_fuzz = true
+		rn.fuzz_rand = rand.New(rand.NewSource(seed[0]))
+	}
 
 	// single goroutine to handle all ClientEnd.Call()s
 	go func() {
@@ -215,17 +227,25 @@ func (rn *Network) isServerDead(endname interface{}, servername interface{}, ser
 	return false
 }
 
+func (rn *Network) getRand() int {
+	if rn.use_fuzz {
+		return int(rn.fuzz_rand.Int63())
+	} else {
+		return rand.Int()
+	}
+}
+
 func (rn *Network) processReq(req reqMsg) {
 	enabled, servername, server, reliable, longreordering := rn.readEndnameInfo(req.endname)
 
 	if enabled && servername != nil && server != nil {
 		if reliable == false {
 			// short delay
-			ms := (rand.Int() % 27)
+			ms := (rn.getRand() % 27)
 			time.Sleep(time.Duration(ms) * time.Millisecond)
 		}
 
-		if reliable == false && (rand.Int()%1000) < 100 {
+		if reliable == false && rn.getRand()%1000 < 100 {
 			// drop the request, return as if timeout
 			req.replyCh <- replyMsg{false, nil}
 			return
@@ -272,12 +292,12 @@ func (rn *Network) processReq(req reqMsg) {
 		if replyOK == false || serverDead == true {
 			// server was killed while we were waiting; return error.
 			req.replyCh <- replyMsg{false, nil}
-		} else if reliable == false && (rand.Int()%1000) < 100 {
+		} else if reliable == false && (rn.getRand()%1000) < 100 {
 			// drop the reply, return as if timeout
 			req.replyCh <- replyMsg{false, nil}
-		} else if longreordering == true && rand.Intn(900) < 600 {
+		} else if longreordering == true && rn.getRand()%900 < 600 {
 			// delay the response for a while
-			ms := 200 + rand.Intn(1+rand.Intn(2000))
+			ms := 200 + rn.getRand()%(1+rn.getRand()%2000)
 			// Russ points out that this timer arrangement will decrease
 			// the number of goroutines, so that the race
 			// detector is less likely to get upset.
@@ -295,11 +315,11 @@ func (rn *Network) processReq(req reqMsg) {
 		if rn.longDelays {
 			// let Raft tests check that leader doesn't send
 			// RPCs synchronously.
-			ms = (rand.Int() % 7000)
+			ms = (rn.getRand() % 7000)
 		} else {
 			// many kv tests require the client to try each
 			// server in fairly rapid succession.
-			ms = (rand.Int() % 100)
+			ms = (rn.getRand() % 100)
 		}
 		time.AfterFunc(time.Duration(ms)*time.Millisecond, func() {
 			req.replyCh <- replyMsg{false, nil}

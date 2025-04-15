@@ -138,14 +138,116 @@ func FuzzMine(f *testing.F) {
 
 }
 
+func fuzz_str(original_str string) string {
+	flag := rand.Intn(6) // 0-5
+	new_str := original_str
+	modifyLen := rand.Intn(1000)
+	switch flag {
+	case 0:
+		// 尾部追加随机长度字符串
+		new_str += GenerateRandomString(modifyLen)
+	case 1:
+		// 尾部随机修改
+		if len(new_str) > 0 {
+			bytes := []byte(new_str)
+			start := len(bytes) - modifyLen
+			if start < 0 {
+				start = 0
+			}
+			for i := start; i < len(bytes); i++ {
+				bytes[i] = byte(rand.Intn(256))
+			}
+			new_str = string(bytes)
+		}
+	case 2:
+		// 修改十位（高四位）
+		if len(new_str) > 0 {
+			bytes := []byte(new_str)
+			start := len(bytes) - modifyLen
+			if start < 0 {
+				start = 0
+			}
+			for i := start; i < len(bytes); i++ {
+				// 保留低四位，随机高四位
+				low := bytes[i] & 0x0F
+				high := byte(rand.Intn(16)) << 4
+				bytes[i] = high | low
+			}
+			new_str = string(bytes)
+		}
+	case 3:
+		// 修改个位（低四位）
+		if len(new_str) > 0 {
+			bytes := []byte(new_str)
+			start := len(bytes) - modifyLen
+			if start < 0 {
+				start = 0
+			}
+			for i := start; i < len(bytes); i++ {
+				// 保留高四位，随机低四位
+				high := bytes[i] & 0xF0
+				low := byte(rand.Intn(16))
+				bytes[i] = high | low
+			}
+			new_str = string(bytes)
+		}
+	case 4:
+		// 去除尾部字符
+		if len(new_str) > 0 {
+			if modifyLen >= len(new_str) {
+				new_str = ""
+			} else {
+				new_str = new_str[:len(new_str)-modifyLen]
+			}
+		}
+	case 5:
+		// 全局随机修改
+		bytes := []byte(new_str)
+		for i := 0; i < len(bytes); i++ {
+			bytes[i] = byte(rand.Intn(256))
+		}
+		new_str = string(bytes)
+	}
+	return new_str
+}
+
+func pic_next_input(inputs_set map[string]int) string {
+	total_score := 0
+	for _, input_score := range inputs_set {
+		total_score += input_score * input_score * input_score
+	}
+	now_score := rand.Intn(total_score)
+	for input, input_score := range inputs_set {
+		now_score -= input_score * input_score * input_score
+		if now_score <= 0 {
+			return input
+		}
+	}
+	log.Fatalf("???")
+	return ""
+}
 func TestTmp(t *testing.T) {
+
+	const maxConcurrency = 10
 	// 每个测试用例独立初始化系统状态
-	for j := 0; j < 100; j++ {
+	inputs_set := make(map[string]int, 0)
+	inputs_set[GenerateRandomString(1000)] = 1
+	test_cnt := 0
+	for j := 0; j < 1000; j++ {
+		fmt.Printf("test num %d start\n", test_cnt)
+		test_cnt++
+
 		servers := 10
 		max_disconnect_num := 4
 		idx := 0
-		inputs_str := GenerateRandomString(1000)
-		//inputs_str := string("asod\xe7\xe7\xe7\xe7fguhaosdfghaoisdufhaoUdhfk\x94\x7f\xfcN\xced\xf8\xceR\xf4\x9f\x1b\u05ca\vi\xb5R\x85j\x9d\x82\xe3\x85M7)\xcbu\x06\x1d\x82Q$\x02\xe3>\r\xfdG #\xe3\xeb|n\xe2\xe5\xc0c:\xc5܇*R\xafg\xcb)3\x8b\x16#~\x14IizP\x18\xd3\xe4\\\xca\xe6Nx\xfe\xd5\xcb\xc3\x1a\xfd\xbdMzV\xb5*wןk\xbd\xde\xc1\x93\xbe\xd7\xe4\x9asW\x9f\x8eg\xca4am>\xaa4\x13@\xba\xa40\x98\xb1hh\x8e\x97e\x14\xfc\xa96ڃ\x14'\x95\xab\b\xcc\x0f\xb1\xa0mh\xb5\xb3\x9b\xab\x7f\x87X\x83\xdd\x7fp\xf6[Uŗp\x8bƀ\x8d\xf6\x8cg)(\x18\xa8<\xa2I\x8f\x979\x80\rɿ\x95%\xfc\u05ec\xa1\xde\xe4\xd0\xd1\xd2\x14\xb9u\xb9\xbdAࣲ\x8b3\x15s\xfd\xac%\xae\xb8/,c\xa2|\xe1g\xa5\xd1=\xee+y\x80%\xc20\x89\x8c\xe0j\x95 \xe0\x82!؟\xf2\xe8\xc6\x16\xa9\x9e\xc9Ρu\x9f\x03\x8e\"\x06-\x01K|6x;\xec\xb0#\xea\xd3\x156\x8e\x8eaTc\xcc1\x9d/\xb6\xe8\xd3&d\xc5Up\xfc\xa14{6\xf5\xd1\xffG\xfc\x10W)>\x11ǡ\xa2o\xad]\xb4\\f\x96\x80\xecvY\xf5\xd5\xfb\x1f(#K\xa6asjdhfkalsjdhfklashdnfhaosdhffl")
+		init_str := pic_next_input(inputs_set)
+		init_score := inputs_set[init_str]
+		inputs_str := fuzz_str(init_str)
+
+		if len(inputs_str) < 50 {
+			continue
+		}
+
 		inputs := make([]int64, len(inputs_str))
 		for i := 0; i < len(inputs_str); i++ {
 			inputs[i] = int64(inputs_str[i])
@@ -156,22 +258,17 @@ func TestTmp(t *testing.T) {
 			idx++
 		}
 
-		cfg := make_config(t, servers, false, false, cfg_input...)
-		defer func() {
-			if r := recover(); r != nil {
-				t.Errorf("Panic occurred: %v", r)
-			}
-			// 确保清理逻辑在panic后执行
-			cfg.cleanup() // 显式调用清理，避免defer未执行
-		}()
+		cfg := make_config(t, servers, true, false, cfg_input...)
 		cfg.begin("Fuzzing start!")
 
 		disconnect_cnt := 0
 		disconnect_set := make(map[int]int, 0)
 		killed_set := make(map[int]int, 0)
+
+		sem := make(chan struct{}, maxConcurrency)
+
 		for ; idx < len(inputs); idx++ {
 			input := int(inputs[idx])
-			fmt.Printf("current input:%d\n", input)
 			flag := input % 10
 			target_server := (input / 10) % 10
 			if _, exists := disconnect_set[target_server]; flag == 2 && disconnect_cnt < max_disconnect_num && !exists {
@@ -179,14 +276,12 @@ func TestTmp(t *testing.T) {
 					cfg.disconnect(target_server)
 					disconnect_cnt++
 					disconnect_set[target_server] = 1
-					fmt.Printf("%d disconnect\n", target_server)
 				}
 			} else if _, exists := disconnect_set[target_server]; flag == 3 && exists {
 				if _, dead := killed_set[target_server]; !dead {
 					cfg.connect(target_server)
 					disconnect_cnt--
 					delete(disconnect_set, target_server)
-					fmt.Printf("%d reconnect\n", target_server)
 				}
 			} else if _, exists := killed_set[target_server]; flag == 4 && disconnect_cnt < max_disconnect_num && !exists {
 				if _, disconnect := disconnect_set[target_server]; disconnect {
@@ -199,21 +294,39 @@ func TestTmp(t *testing.T) {
 				cfg.crash1(target_server)
 
 				killed_set[target_server] = 1
-				fmt.Printf("%d killed\n", target_server)
 			} else if _, exists := killed_set[target_server]; flag == 5 && exists {
 				cfg.start1(target_server, cfg.applier, inputs[idx])
 				disconnect_cnt--
 				delete(killed_set, target_server)
 				cfg.connect(target_server)
 				delete(disconnect_set, target_server)
-				fmt.Printf("%d recover\n", target_server)
 			} else {
-				fmt.Printf("a msg send\n")
-				cfg.one(input, 1, true)
+				// 阻塞等待直到有可用槽位（控制并发量）
+				sem <- struct{}{}
+
+				// 启动异步操作
+				go func(input int) {
+					defer func() { <-sem }() // 释放槽位
+					cfg.one(input, 1, true)
+				}(input)
 			}
 		}
 
 		cfg.end()
+		close(sem)
+		score := cfg.get_all_score()
+		if score+1 > init_score {
+			inputs_set[inputs_str] = score + 1
+		} else if rand.Intn(100) < 10 {
+			//仍有几率保留这个看起来没有新意的fuzz结果
+			inputs_set[inputs_str] = score + 1
+		}
+		fmt.Printf("init score:%d , current score:%d\n", init_score, score+1)
+		if r := recover(); r != nil {
+			t.Errorf("Panic occurred: %v", r)
+		}
+		// 确保清理逻辑在panic后执行
+		cfg.cleanup() // 显式调用清理，避免defer未执行
 	}
 }
 

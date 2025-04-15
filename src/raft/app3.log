@@ -1,4 +1,0 @@
-INFO: 2025/04/13 14:19:07 raft.go:1043: 3 start
-INFO: 2025/04/13 14:19:07 raft.go:548: follower 3 commit_index update to 695
-INFO: 2025/04/13 14:19:07 raft.go:548: follower 3 commit_index update to 696
-INFO: 2025/04/13 14:19:08 raft.go:548: follower 3 commit_index update to 697
