@@ -47,7 +47,7 @@ func FuzzMine(f *testing.F) {
 		}
 	}()
 	f.Fuzz(func(t *testing.T, inputs_str string) {
-		if len(inputs_str) < 100 {
+		if len(inputs_str) < 20 || len(inputs_str) > 200 {
 			return
 		}
 

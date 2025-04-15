@@ -105,8 +105,6 @@ type Raft struct {
 	matches_indexes   []int
 	votes             int
 	able_commit_index int
-	// newest_heartbeat_map map[int]int //用于检查在最新一轮heartbeat中，是否收到了大多数服务器的相应，服务器在收到Start后认为自己是leader前需要用这个来检查
-	// newest_heartbeat_ch  chan bool
 
 	//use for fuzz
 	is_fuzzing bool

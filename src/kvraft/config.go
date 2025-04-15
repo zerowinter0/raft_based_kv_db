@@ -1,20 +1,24 @@
 package kvraft
 
-import "6.5840/labrpc"
-import "testing"
-import "os"
+import (
+	"os"
+	"testing"
 
-// import "log"
-import crand "crypto/rand"
-import "math/big"
-import "math/rand"
-import "encoding/base64"
-import "sync"
-import "runtime"
-import "6.5840/raft"
-import "fmt"
-import "time"
-import "sync/atomic"
+	"6.5840/labrpc"
+
+	// import "log"
+	crand "crypto/rand"
+	"encoding/base64"
+	"fmt"
+	"math/big"
+	"math/rand"
+	"runtime"
+	"sync"
+	"sync/atomic"
+	"time"
+
+	"6.5840/raft"
+)
 
 func randstring(n int) string {
 	b := make([]byte, 2*n)
@@ -61,12 +65,12 @@ type config struct {
 
 func (cfg *config) checkTimeout() {
 	// enforce a two minute real-time limit on each test
-	if !cfg.t.Failed() && time.Since(cfg.start) > 120*time.Second {
+	if cfg.t != nil && !cfg.t.Failed() && time.Since(cfg.start) > 120*time.Second {
 		cfg.t.Fatal("test took longer than 120 seconds")
 	}
 }
 
-func (cfg *config) cleanup() {
+func (cfg *config) Cleanup() {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	for i := 0; i < len(cfg.kvservers); i++ {
@@ -120,7 +124,7 @@ func (cfg *config) connectUnlocked(i int, to []int) {
 	}
 }
 
-func (cfg *config) connect(i int, to []int) {
+func (cfg *config) Connect(i int, to []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.connectUnlocked(i, to)
@@ -188,7 +192,7 @@ func (cfg *config) partition(p1 []int, p2 []int) {
 // Create a clerk with clerk specific server names.
 // Give it connections to all of the servers, but for
 // now enable only connections to servers in to[].
-func (cfg *config) makeClient(to []int) *Clerk {
+func (cfg *config) MakeClient(to []int) *Clerk {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 
@@ -389,6 +393,38 @@ func make_config(t *testing.T, n int, unreliable bool, maxraftstate int) *config
 	return cfg
 }
 
+func MakeRealConfig(n int, unreliable bool, maxraftstate int) *config {
+	ncpu_once.Do(func() {
+		if runtime.NumCPU() < 2 {
+			fmt.Printf("warning: only one CPU, which may conceal locking bugs\n")
+		}
+		rand.Seed(makeSeed())
+	})
+	runtime.GOMAXPROCS(4)
+	cfg := &config{}
+	cfg.t = nil
+	cfg.net = labrpc.MakeNetwork()
+	cfg.n = n
+	cfg.kvservers = make([]*KVServer, cfg.n)
+	cfg.saved = make([]*raft.Persister, cfg.n)
+	cfg.endnames = make([][]string, cfg.n)
+	cfg.clerks = make(map[*Clerk][]string)
+	cfg.nextClientId = cfg.n + 1000 // client ids start 1000 above the highest serverid
+	cfg.maxraftstate = maxraftstate
+	cfg.start = time.Now()
+
+	// create a full set of KV servers.
+	for i := 0; i < cfg.n; i++ {
+		cfg.StartServer(i)
+	}
+
+	cfg.ConnectAll()
+
+	cfg.net.Reliable(!unreliable)
+
+	return cfg
+}
+
 func (cfg *config) rpcTotal() int {
 	return cfg.net.GetTotalCount()
 }
@@ -411,9 +447,9 @@ func (cfg *config) op() {
 // was no failure.
 // print the Passed message,
 // and some performance numbers.
-func (cfg *config) end() {
+func (cfg *config) End() {
 	cfg.checkTimeout()
-	if cfg.t.Failed() == false {
+	if cfg.t != nil && cfg.t.Failed() == false {
 		t := time.Since(cfg.t0).Seconds()  // real time
 		npeers := cfg.n                    // number of Raft peers
 		nrpc := cfg.rpcTotal() - cfg.rpcs0 // number of RPC sends

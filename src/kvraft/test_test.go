@@ -1,16 +1,19 @@
 package kvraft
 
-import "6.5840/porcupine"
-import "6.5840/models"
-import "testing"
-import "strconv"
-import "time"
-import "math/rand"
-import "strings"
-import "sync"
-import "sync/atomic"
-import "fmt"
-import "io/ioutil"
+import (
+	"fmt"
+	"io/ioutil"
+	"math/rand"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"6.5840/models"
+	"6.5840/porcupine"
+)
 
 // The tester generously allows solutions to complete elections in one second
 // (much more than the paper's range of timeouts).
@@ -105,7 +108,7 @@ func check(cfg *config, t *testing.T, ck *Clerk, key string, value string) {
 func run_client(t *testing.T, cfg *config, me int, ca chan bool, fn func(me int, ck *Clerk, t *testing.T)) {
 	ok := false
 	defer func() { ca <- ok }()
-	ck := cfg.makeClient(cfg.All())
+	ck := cfg.MakeClient(cfg.All())
 	fn(me, ck, t)
 	ok = true
 	cfg.deleteClient(ck)
@@ -238,12 +241,12 @@ func GenericTest(t *testing.T, part string, nclients int, nservers int, unreliab
 	title = title + " (" + part + ")" // 4A or 4B
 
 	cfg := make_config(t, nservers, unreliable, maxraftstate)
-	defer cfg.cleanup()
+	defer cfg.Cleanup()
 
 	cfg.begin(title)
 	opLog := &OpLog{}
 
-	ck := cfg.makeClient(cfg.All())
+	ck := cfg.MakeClient(cfg.All())
 
 	done_partitioner := int32(0)
 	done_clients := int32(0)
@@ -384,7 +387,7 @@ func GenericTest(t *testing.T, part string, nclients int, nservers int, unreliab
 		fmt.Println("info: linearizability check timed out, assuming history is ok")
 	}
 
-	cfg.end()
+	cfg.End()
 }
 
 // Check that ops are committed fast enough, better than 1 per heartbeat interval
@@ -392,9 +395,9 @@ func GenericTestSpeed(t *testing.T, part string, maxraftstate int) {
 	const nservers = 3
 	const numOps = 1000
 	cfg := make_config(t, nservers, false, maxraftstate)
-	defer cfg.cleanup()
+	defer cfg.Cleanup()
 
-	ck := cfg.makeClient(cfg.All())
+	ck := cfg.MakeClient(cfg.All())
 
 	cfg.begin(fmt.Sprintf("Test: ops complete fast enough (%s)", part))
 
@@ -419,7 +422,7 @@ func GenericTestSpeed(t *testing.T, part string, maxraftstate int) {
 		t.Fatalf("Operations completed too slowly %v/op > %v/op\n", dur/numOps, timePerOp)
 	}
 
-	cfg.end()
+	cfg.End()
 }
 
 func TestBasic4A(t *testing.T) {
@@ -444,9 +447,9 @@ func TestUnreliable4A(t *testing.T) {
 func TestUnreliableOneKey4A(t *testing.T) {
 	const nservers = 3
 	cfg := make_config(t, nservers, true, -1)
-	defer cfg.cleanup()
+	defer cfg.Cleanup()
 
-	ck := cfg.makeClient(cfg.All())
+	ck := cfg.MakeClient(cfg.All())
 
 	cfg.begin("Test: concurrent append to same key, unreliable (4A)")
 
@@ -470,7 +473,7 @@ func TestUnreliableOneKey4A(t *testing.T) {
 	vx := Get(cfg, ck, "k", nil, -1)
 	checkConcurrentAppends(t, vx, counts)
 
-	cfg.end()
+	cfg.End()
 }
 
 // Submit a request in the minority partition and check that the requests
@@ -479,8 +482,8 @@ func TestUnreliableOneKey4A(t *testing.T) {
 func TestOnePartition4A(t *testing.T) {
 	const nservers = 5
 	cfg := make_config(t, nservers, false, -1)
-	defer cfg.cleanup()
-	ck := cfg.makeClient(cfg.All())
+	defer cfg.Cleanup()
+	ck := cfg.MakeClient(cfg.All())
 
 	Put(cfg, ck, "1", "13", nil, -1)
 
@@ -489,14 +492,14 @@ func TestOnePartition4A(t *testing.T) {
 	p1, p2 := cfg.make_partition()
 	cfg.partition(p1, p2)
 
-	ckp1 := cfg.makeClient(p1)  // connect ckp1 to p1
-	ckp2a := cfg.makeClient(p2) // connect ckp2a to p2
-	ckp2b := cfg.makeClient(p2) // connect ckp2b to p2
+	ckp1 := cfg.MakeClient(p1)  // connect ckp1 to p1
+	ckp2a := cfg.MakeClient(p2) // connect ckp2a to p2
+	ckp2b := cfg.MakeClient(p2) // connect ckp2b to p2
 
 	Put(cfg, ckp1, "1", "14", nil, -1)
 	check(cfg, t, ckp1, "1", "14")
 
-	cfg.end()
+	cfg.End()
 
 	done0 := make(chan bool)
 	done1 := make(chan bool)
@@ -523,7 +526,7 @@ func TestOnePartition4A(t *testing.T) {
 	Put(cfg, ckp1, "1", "16", nil, -1)
 	check(cfg, t, ckp1, "1", "16")
 
-	cfg.end()
+	cfg.End()
 
 	cfg.begin("Test: completion after heal (4A)")
 
@@ -548,7 +551,7 @@ func TestOnePartition4A(t *testing.T) {
 
 	check(cfg, t, ck, "1", "15")
 
-	cfg.end()
+	cfg.End()
 }
 
 func TestManyPartitionsOneClient4A(t *testing.T) {
@@ -599,9 +602,9 @@ func TestSnapshotRPC4B(t *testing.T) {
 	const nservers = 3
 	maxraftstate := 1000
 	cfg := make_config(t, nservers, false, maxraftstate)
-	defer cfg.cleanup()
+	defer cfg.Cleanup()
 
-	ck := cfg.makeClient(cfg.All())
+	ck := cfg.MakeClient(cfg.All())
 
 	cfg.begin("Test: InstallSnapshot RPC (4B)")
 
@@ -611,7 +614,7 @@ func TestSnapshotRPC4B(t *testing.T) {
 	// a bunch of puts into the majority partition.
 	cfg.partition([]int{0, 1}, []int{2})
 	{
-		ck1 := cfg.makeClient([]int{0, 1})
+		ck1 := cfg.MakeClient([]int{0, 1})
 		for i := 0; i < 50; i++ {
 			Put(cfg, ck1, strconv.Itoa(i), strconv.Itoa(i), nil, -1)
 		}
@@ -630,7 +633,7 @@ func TestSnapshotRPC4B(t *testing.T) {
 	// lagging server, so that it has to catch up.
 	cfg.partition([]int{0, 2}, []int{1})
 	{
-		ck1 := cfg.makeClient([]int{0, 2})
+		ck1 := cfg.MakeClient([]int{0, 2})
 		Put(cfg, ck1, "c", "C", nil, -1)
 		Put(cfg, ck1, "d", "D", nil, -1)
 		check(cfg, t, ck1, "a", "A")
@@ -647,7 +650,7 @@ func TestSnapshotRPC4B(t *testing.T) {
 	check(cfg, t, ck, "e", "E")
 	check(cfg, t, ck, "1", "1")
 
-	cfg.end()
+	cfg.End()
 }
 
 // are the snapshots not too huge? 500 bytes is a generous bound for the
@@ -657,9 +660,9 @@ func TestSnapshotSize4B(t *testing.T) {
 	maxraftstate := 1000
 	maxsnapshotstate := 500
 	cfg := make_config(t, nservers, false, maxraftstate)
-	defer cfg.cleanup()
+	defer cfg.Cleanup()
 
-	ck := cfg.makeClient(cfg.All())
+	ck := cfg.MakeClient(cfg.All())
 
 	cfg.begin("Test: snapshot size is reasonable (4B)")
 
@@ -682,7 +685,7 @@ func TestSnapshotSize4B(t *testing.T) {
 		t.Fatalf("snapshot too large (%v > %v)", ssz, maxsnapshotstate)
 	}
 
-	cfg.end()
+	cfg.End()
 }
 
 func TestSpeed4B(t *testing.T) {
