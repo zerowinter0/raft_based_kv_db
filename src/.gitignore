@@ -12,3 +12,4 @@ mrtmp.*
 /main/mrworker
 /raft/*.log
 /kvraft/*.log
+/main/*.log
